@@ -1,5 +1,5 @@
 ---
-title: nana
+title: hannan
 jawatan: pengawas
-gambar: /assets/images/arfa.png
+gambar: /assets/images/hannan.png
 ---
