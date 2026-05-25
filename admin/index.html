@@ -308,8 +308,28 @@ class="w-full border p-2 rounded"><input type="text" name="link" placeholder="UR
         document.getElementById('btn-add-program').addEventListener('click', () => { currentType = "program"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Program" class="w-full border p-2 rounded"><input type="text" name="timeline" placeholder="Mac 2026 / Julai 2026" class="w-full border p-2 rounded"><select name="status" class="w-full border p-2 rounded"><option>Akan Datang</option><option>Selesai</option></select><textarea name="desc" placeholder="Deskripsi ringkas..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
         
         document.getElementById('btn-close-modal').addEventListener('click', () => modalF.classList.add('hidden'));
-        document.getElementById('form-cms').addEventListener('submit', (e) => { e.preventDefault(); const fd = new FormData(e.target); const item = {}; fd.forEach((v, k) => item[k] = v); item._filename = `${Date.now()}-${Math.floor(Math.random()*100)}.md`; memoryStore[currentType].push(item); buatUlangPaparan(); modalF.classList.add('hidden'); });
+        document.getElementById('form-cms').addEventListener('submit', async (e) => { 
+    e.preventDefault(); 
+    const fd = new FormData(e.target); 
+    const item = {}; 
+    
+    fd.forEach((v, k) => item[k] = v); 
+    item._filename = `${Date.now()}-${Math.floor(Math.random()*100)}.md`; 
 
+    const fileInput = document.getElementById('cover-upload');
+    if (fileInput && fileInput.files.length) {
+        try {
+            item.cover = await imageToBase64(fileInput.files[0]);
+        } catch (error) {
+            console.error("Gagal menukar imej ke Base64:", error);
+        }
+    }
+    // ======================================
+
+    memoryStore[currentType].push(item); 
+    buatUlangPaparan(); 
+    modalF.classList.add('hidden'); 
+});
         // TEXT EDITOR LAYOUT BINDINGS
         document.addEventListener('click', (e) => { const ed = e.target.closest('[contenteditable="true"]'); if (ed) { activeEditableElement = ed; document.getElementById('text-style-bar').classList.remove('hidden'); } });
         window.toggleStylingBarManual = function() { document.getElementById('text-style-bar').classList.toggle('hidden'); };
