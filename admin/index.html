@@ -307,16 +307,17 @@
         async function ambilDataPelayanCms(folderPath, storeKey, renderFn, containerId) {
     const container = document.getElementById(containerId);
     try {
-        // TAMBAH HEADERS AUTHORIZATION DI SINI
-        const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`, {
-            headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
+        // HEADERS AUTHORIZATION
+const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`, {
+    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
+});
         });
         if(!res.ok) return;
         const files = await res.json();
         container.innerHTML = '';
         for(let file of files) {
             if(file.name.endsWith('.md')) {
-                const fRes = await fetch(file.download_url);
+const fRes = await fetch(`${file.download_url}?t=${Date.now()}`);
                 const txt = await fRes.text();
                 let parsed = parseFrontmatter(txt);
                 parsed._filename = file.name;
