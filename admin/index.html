@@ -258,18 +258,22 @@
         }
 
         function parseFrontmatter(text) {
-            const obj = { body: "" };
-            const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
-            if (match) {
-                const lines = match[1].split('\n');
-                lines.forEach(line => {
-                    const parts = line.split(':');
-                    if (parts.length >= 2) { obj[parts[0].trim()] = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, ''); }
-                });
-                obj.body = match[2].trim();
+    const obj = { body: "" };
+    const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
+    if (match) {
+        const lines = match[1].split('\n');
+        lines.forEach(line => {
+            const parts = line.split(':');
+            if (parts.length >= 2) {
+                const key = parts[0].trim();
+                const value = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
+                obj[key] = value;
             }
-            return obj;
-        }
+        });
+        obj.body = match[2].trim(); // Membaca kandungan teks di luar frontmatter
+    }
+    return obj;
+}
 
         // RENDER METHOD DEFINITIONS FOR SESSION CONTAINER
         function rNilam(d, c, i) { c.insertAdjacentHTML('beforeend', `<div class="bg-white p-6 border rounded-xl relative card-item"><button onclick="padamItemSesi('nilam', ${i})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"><i class="fas fa-trash"></i></button><h4 class="font-bold">${d.title}</h4><p class="text-xs text-slate-500">${d.body}</p></div>`); }
