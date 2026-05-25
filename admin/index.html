@@ -214,17 +214,86 @@
     </div>
 
     <div id="modal-bg-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="bg-purple-900 p-4 text-white font-bold flex justify-between items-center">
+            <span><i class="fas fa-paint-brush mr-2"></i> Pereka Latar Belakang Premium</span>
+            <button onclick="document.getElementById('modal-bg-settings').classList.add('hidden')" class="text-white hover:text-purple-200"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="p-6 space-y-4 overflow-y-auto flex-1 text-sm text-slate-700">
             <input type="hidden" id="target-section-id">
-            <select id="bg-type-selector" class="w-full border p-2 text-sm rounded-lg" onchange="toggleBgInputs()">
-                <option value="solid">Warna Solid</option>
-                <option value="image">Gambar URL</option>
-            </select>
-            <div id="bg-solid-field"><input type="color" id="bg-solid-color" class="w-full h-10"></div>
-            <div id="bg-image-field" class="hidden"><input type="text" id="bg-image-url-input" class="w-full border p-2 text-sm rounded-lg" placeholder="https://..."></div>
-            <button onclick="applyBgSettings()" class="w-full bg-purple-600 text-white font-bold p-2 rounded-xl">Terapkan Latar</button>
+            
+            <div>
+                <label class="block font-bold mb-1">Jenis Latar Belakang</label>
+                <select id="bg-type-selector" class="w-full border p-2.5 text-xs rounded-xl bg-slate-50 border-purple-100 font-medium" onchange="tukarPilihanInputBg()">
+                    <option value="solid">Warna Solid</option>
+                    <option value="gradient">Warna Gradient (Pelangi/Saga)</option>
+                    <option value="url">Pautan Gambar (URL)</option>
+                    <option value="upload">Muat Naik Gambar Komputer</option>
+                </select>
+            </div>
+
+            <div id="bg-solid-field" class="space-y-2">
+                <label class="block text-xs font-semibold">Pilih Warna Latar</label>
+                <input type="color" id="bg-solid-color" class="w-full h-10 rounded-lg cursor-pointer border p-1">
+            </div>
+
+            <div id="bg-gradient-field" class="grid grid-cols-2 gap-2 hidden">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Warna Mula (From)</label>
+                    <input type="color" id="bg-grad-1" value="#6b21a8" class="w-full h-10 rounded-lg cursor-pointer border p-1">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Warna Tamat (To)</label>
+                    <input type="color" id="bg-grad-2" value="#1e1b4b" class="w-full h-10 rounded-lg cursor-pointer border p-1">
+                </div>
+                <div class="col-span-full">
+                    <label class="block text-xs font-semibold mb-1">Arah Gradient</label>
+                    <select id="bg-grad-dir" class="w-full border p-2 text-xs rounded-lg">
+                        <option value="to bottom">Ke Bawah ↓</option>
+                        <option value="to right">Ke Kanan →</option>
+                        <option value="to top right">Menjuru Atas Kanan ↗</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="bg-url-field" class="space-y-2 hidden">
+                <label class="block text-xs font-semibold">Masukkan URL Gambar</label>
+                <input type="text" id="bg-image-url-input" class="w-full border p-2.5 text-xs rounded-xl" placeholder="https://images.unsplash.com/...">
+            </div>
+
+            <div id="bg-upload-field" class="space-y-2 hidden">
+                <label class="block text-xs font-semibold">Pilih Fail Gambar</label>
+                <input type="file" id="bg-image-upload" accept="image/*" class="w-full border p-2 text-xs rounded-xl bg-slate-50">
+            </div>
+
+            <hr class="border-purple-50">
+
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <label class="font-bold">Keamatan Latar (Intensity / Opacity)</label>
+                    <span id="bg-intensity-val" class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-md">100%</span>
+                </div>
+                <input type="range" id="bg-intensity-slider" min="10" max="100" value="100" class="w-full accent-purple-600" oninput="document.getElementById('bg-intensity-val').innerText = this.value + '%'">
+            </div>
+
+            <div class="flex items-center justify-between bg-purple-50/50 p-3 rounded-xl border border-purple-100/60">
+                <div>
+                    <label class="font-bold block">Kesan Neon Glow</label>
+                    <span class="text-[11px] text-slate-500 block">Aktifkan pancaran cahaya neon aura purple pada seksyen ini</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="bg-glow-toggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                </label>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 p-4 border-t flex space-x-2">
+            <button onclick="gunakanTetapanLatarAdvance()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg text-xs uppercase tracking-wider">Terapkan Perubahan</button>
         </div>
     </div>
+</div>
 
     <script>
         const repoOwner = "safurazakaria";
@@ -343,48 +412,96 @@ class="w-full border p-2 rounded"><input type="text" name="link" placeholder="UR
 
         window.openLogoSettings = function() { document.getElementById('modal-logo').classList.remove('hidden'); };
         window.applyLogoSettings = function() { document.getElementById('img-school-logo').src = document.getElementById('logo-url-input').value; document.getElementById('modal-logo').classList.add('hidden'); };
-        window.openBgSettings = function(id) { document.getElementById('target-section-id').value = id; document.getElementById('modal-bg-settings').classList.remove('hidden'); };
-        window.toggleBgInputs = function() { const t = document.getElementById('bg-type-selector').value; document.getElementById('bg-solid-field').classList.toggle('hidden', t!=='solid'); document.getElementById('bg-image-field').classList.toggle('hidden', t!=='image'); };
-        window.applyBgSettings = function() {
+        // Memaparkan input borang mengikut jenis latar yang dipilih
+window.tukarPilihanInputBg = function() {
+    const type = document.getElementById('bg-type-selector').value;
+    document.getElementById('bg-solid-field').classList.toggle('hidden', type !== 'solid');
+    document.getElementById('bg-gradient-field').classList.toggle('hidden', type !== 'gradient');
+    document.getElementById('bg-url-field').classList.toggle('hidden', type !== 'url');
+    document.getElementById('bg-upload-field').classList.toggle('hidden', type !== 'upload');
+};
 
-    const id =
-        document.getElementById('target-section-id').value;
+// Membuka modal tetapan latar belakang
+window.openBgSettings = function(id) {
+    document.getElementById('target-section-id').value = id;
+    
+    // Ambil tetapan sedia ada jika ada dari localStorage sebagai rujukan default modal
+    const saved = localStorage.getItem('bg_adv_' + id);
+    if(saved) {
+        const bg = JSON.parse(saved);
+        document.getElementById('bg-type-selector').value = bg.type;
+        document.getElementById('bg-intensity-slider').value = bg.intensity || 100;
+        document.getElementById('bg-intensity-val').innerText = (bg.intensity || 100) + '%';
+        document.getElementById('bg-glow-toggle').checked = bg.glow || false;
+        
+        if(bg.type === 'solid') document.getElementById('bg-solid-color').value = bg.color;
+        if(bg.type === 'url') document.getElementById('bg-image-url-input').value = bg.targetData;
+    }
+    
+    tukarPilihanInputBg();
+    document.getElementById('modal-bg-settings').classList.remove('hidden');
+};
 
-    const el =
-        document.getElementById(id);
+// Fungsi memproses data imej, warna, gradient, keamatan & glow
+window.gunakanTetapanLatarAdvance = async function() {
+    const id = document.getElementById('target-section-id').value;
+    const sectionEl = document.getElementById(id);
+    if(!sectionEl) return;
 
-    const t =
-        document.getElementById('bg-type-selector').value;
+    const type = document.getElementById('bg-type-selector').value;
+    const intensity = document.getElementById('bg-intensity-slider').value;
+    const glow = document.getElementById('bg-glow-toggle').checked;
+    
+    let targetData = "";
+    let styleCss = "";
 
-    const color =
-        document.getElementById('bg-solid-color').value;
-
-    const image =
-        document.getElementById('bg-image-url-input').value;
-
-    if(t === 'solid'){
-        el.style.backgroundColor = color;
-        el.style.backgroundImage = '';
+    // 1. Tentukan Nilai Visual Latar Belakang
+    if(type === 'solid') {
+        targetData = document.getElementById('bg-solid-color').value;
+        styleCss = `background-color: ${targetData}; background-image: none;`;
+    } 
+    else if(type === 'gradient') {
+        const c1 = document.getElementById('bg-grad-1').value;
+        const c2 = document.getElementById('bg-grad-2').value;
+        const dir = document.getElementById('bg-grad-dir').value;
+        targetData = `${dir}, ${c1}, ${c2}`;
+        styleCss = `background-image: linear-gradient(${targetData});`;
+    } 
+    else if(type === 'url') {
+        targetData = document.getElementById('bg-image-url-input').value;
+        styleCss = `background-image: url('${targetData}'); background-size: cover; background-position: center;`;
+    } 
+    else if(type === 'upload') {
+        const uploadInput = document.getElementById('bg-image-upload');
+        if(uploadInput.files && uploadInput.files[0]) {
+            targetData = await imageToBase64(uploadInput.files[0]);
+            styleCss = `background-image: url('${targetData}'); background-size: cover; background-position: center;`;
+        } else {
+            alert("Sila pilih fail imej terlebih dahulu!");
+            return;
+        }
     }
 
-    if(t === 'image'){
-        el.style.backgroundImage = `url('${image}')`;
-        el.style.backgroundSize = 'cover';
-        el.style.backgroundPosition = 'center';
+    // 2. Laksanakan perubahan gaya ke atas elemen HTML (Live Preview)
+    sectionEl.style.cssText = styleCss;
+    
+    // Urus keamatan (intensity) menggunakan CSS opacity
+    sectionEl.style.opacity = intensity / 100;
+    
+    // Urus kesan neon glow menggunakan box shadow CSS
+    if(glow) {
+        sectionEl.classList.add('glow-active');
+        sectionEl.style.boxShadow = "inset 0 0 50px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)";
+    } else {
+        sectionEl.classList.remove('glow-active');
+        sectionEl.style.boxShadow = "none";
     }
 
-    // SIMPAN SETTING BG
-    localStorage.setItem(
-        'bg_' + id,
-        JSON.stringify({
-            type: t,
-            color: color,
-            image: image
-        })
-    );
+    // 3. Simpan konfigurasi penuh ke dalam LocalStorage
+    const bgConfig = { type, targetData, intensity, glow, styleCss };
+    localStorage.setItem('bg_adv_' + id, JSON.stringify(bgConfig));
 
-    document.getElementById('modal-bg-settings')
-        .classList.add('hidden');
+    document.getElementById('modal-bg-settings').classList.add('hidden');
 };
 
         // BULK PUSH ENGINE SYSTEM (VERSI KEMAS KINI: SIMPAN TEKS & KAD .MD)
@@ -428,33 +545,22 @@ class="w-full border p-2 rounded"><input type="text" name="link" placeholder="UR
                     }
                 });
 
-                // SYNC BACKGROUND SECTION
-
-['hero','nilam','rak-maya','tvpss',
- 'pengurusan','pengawas','program']
-.forEach(sectionId => {
-
-    const adminEl =
-        document.getElementById(sectionId);
-
-    const publicEl =
-        publicDoc.getElementById(sectionId);
-
-    if(adminEl && publicEl){
-
-        publicEl.style.backgroundImage =
-            adminEl.style.backgroundImage;
-
-        publicEl.style.backgroundColor =
-            adminEl.style.backgroundColor;
-
-        publicEl.style.backgroundSize =
-            adminEl.style.backgroundSize;
-
-        publicEl.style.backgroundPosition =
-            adminEl.style.backgroundPosition;
+// SYNC BACKGROUND ADVANCED ENGINE (Mendukung Glow & Intensity)
+['hero','nilam','rak-maya','tvpss','pengurusan','pengawas','program'].forEach(sectionId => {
+    const adminEl = document.getElementById(sectionId);
+    const publicEl = publicDoc.getElementById(sectionId);
+    
+    if(adminEl && publicEl) {
+        // Salin semua baris css inline yang telah direka (termasuk opacity & shadow)
+        publicEl.style.cssText = adminEl.style.cssText;
+        
+        // Kekalkan class glow sekiranya diaktifkan
+        if(adminEl.classList.contains('glow-active')) {
+            publicEl.classList.add('glow-active');
+        } else {
+            publicEl.classList.remove('glow-active');
+        }
     }
-
 });
 
                 // Salin juga URL logo sekolah jika ada perubahan
@@ -515,46 +621,22 @@ class="w-full border p-2 rounded"><input type="text" name="link" placeholder="UR
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-
-    [
-        'hero',
-        'nilam',
-        'rak-maya',
-        'tvpss',
-        'pengurusan',
-        'pengawas',
-        'program'
-    ].forEach(id => {
-
-        const saved =
-            localStorage.getItem('bg_' + id);
-
-        if(saved){
-
-            const bg =
-                JSON.parse(saved);
-
-            const el =
-                document.getElementById(id);
-
-            if(bg.type === 'solid'){
-                el.style.backgroundColor =
-                    bg.color;
-            }
-
-            if(bg.type === 'image'){
-                el.style.backgroundImage =
-                    `url('${bg.image}')`;
-
-                el.style.backgroundSize =
-                    'cover';
-
-                el.style.backgroundPosition =
-                    'center';
+// Letak dalam fungsi document.addEventListener("DOMContentLoaded", () => { ... })
+['hero', 'nilam', 'rak-maya', 'tvpss', 'pengurusan', 'pengawas', 'program'].forEach(id => {
+    const saved = localStorage.getItem('bg_adv_' + id);
+    if(saved){
+        const bg = JSON.parse(saved);
+        const el = document.getElementById(id);
+        if(el) {
+            el.style.cssText = bg.styleCss;
+            el.style.opacity = bg.intensity / 100;
+            if(bg.glow) {
+                el.classList.add('glow-active');
+                el.style.boxShadow = "inset 0 0 50px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)";
             }
         }
-
-    });
+    }
+});
 
     ambilDataPelayanCms('data/nilam', 'nilam', rNilam, 'nilam-grid');
     ambilDataPelayanCms('data/rak_buku', 'rak_buku', rBuku, 'rak-buku-container');
