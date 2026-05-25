@@ -9,6 +9,37 @@ media_folder: "assets/images"
 public_folder: "assets/images"
 
 collections:
+  - name: "nilam"
+    label: "Aktiviti & Data NILAM"
+    folder: "data/nilam"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tajuk Aktiviti", name: "title", widget: "string" }
+      - { label: "Ikon FontAwesome", name: "icon", widget: "string", default: "fa-star" }
+      - { label: "Keterangan Ringkas", name: "body", widget: "text" }
+
+  - name: "tvpss"
+    label: "Siaran YouTube TvPSS"
+    folder: "data/tvpss"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tajuk Siaran", name: "title", widget: "string" }
+      - { label: "Pautan Embed YouTube URL", name: "embed_url", widget: "string" }
+      - { label: "Deskripsi", name: "desc", widget: "text" }
+
+  - name: "program"
+    label: "Program PSS Sepanjang 2026"
+    folder: "data/program"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Nama Program", name: "title", widget: "string" }
+      - { label: "Garis Masa (Timeline)", name: "timeline", widget: "string" }
+      - { label: "Status", name: "status", widget: "select", options: ["Akan Datang", "Selesai"] }
+      - { label: "Deskripsi", name: "desc", widget: "text" }
+
   - name: "pengawas"
     label: "Senarai Pengawas PSS"
     folder: "data/pengawas"
