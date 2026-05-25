@@ -1,16 +1,467 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="ms" class="scroll-smooth">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Content Manager - PSS Skylert 2026</title>
-
-  <!-- config.yml -->
-  <link href="config.yml" type="text/yaml" rel="cms-config-url" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Editor Admin - PSS Skylert 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f3e8ff; }
+        ::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7e22ce; }
+        /* Indicator untuk text yang boleh diedit */
+        [contenteditable="true"]:hover {
+            outline: 2px dashed #a855f7;
+            background-color: rgba(168, 85, 247, 0.05);
+            cursor: pointer;
+        }
+        [contenteditable="true"]:focus {
+            outline: 2px solid #a855f7;
+            background-color: rgba(168, 85, 247, 0.1);
+        }
+    </style>
 </head>
+<body class="bg-slate-50 text-slate-800 font-sans leading-normal tracking-normal pt-12">
 
-<body>
-  <!-- Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <div class="fixed top-0 left-0 right-0 bg-slate-900 text-white z-50 px-6 py-3 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-3">
+            <span class="bg-purple-600 text-xs uppercase px-2 py-1 rounded font-bold animate-pulse">Mod Admin Editor</span>
+            <p class="text-xs text-slate-300 hidden md:block">Klik pada mana-mana teks untuk edit. Perubahan hanya akan dihantar ke GitHub bila anda tekan butang Simpan.</p>
+        </div>
+        <button id="btn-save-all" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-emerald-950/50">
+            <i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>
+        </button>
+    </div>
+
+    <nav class="fixed w-full z-30 top-12 bg-white/90 backdrop-blur-md shadow-sm border-b border-purple-100">
+        <div class="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 py-3 px-6">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-md shadow-purple-200">
+                    <i class="fas fa-book-open text-xl"></i>
+                </div>
+                <span id="txt-nav-title" contenteditable="true" class="font-bold text-xl tracking-tight bg-gradient-to-r from-purple-700 to-indigo-700 bg-clip-text text-transparent">Skylert PSS 2026</span>
+            </div>
+            
+            <div class="block lg:hidden">
+                <button id="nav-toggle" class="flex items-center px-3 py-2 text-purple-600 hover:text-purple-900 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <div class="w-full flex-grow lg:flex lg:items-center lg:w-auto hidden mt-2 lg:mt-0 bg-transparent p-4 lg:p-0 z-20" id="nav-content">
+                <ul class="list-reset lg:flex justify-end flex-1 items-center space-y-2 lg:space-y-0 lg:space-x-2 font-medium text-sm">
+                    <li><a class="inline-block text-purple-600 hover:text-purple-900 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#hero">Utama</a></li>
+                    <li><a class="inline-block text-slate-600 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#nilam">NILAM</a></li>
+                    <li><a class="inline-block text-slate-600 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#rak-maya">Rak Maya</a></li>
+                    <li><a class="inline-block text-slate-600 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#tvpss">TvPSS</a></li>
+                    <li><a class="inline-block text-slate-600 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#pengurusan">Pengurusan</a></li>
+                    <li><a class="inline-block text-slate-600 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#pengawas">Pengawas</a></li>
+                    <li><a class="inline-block text-slate-600 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#program">Program</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero" class="pt-32 pb-20 bg-gradient-to-b from-purple-900 via-indigo-950 to-slate-50 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <span id="txt-hero-tag" contenteditable="true" class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs uppercase font-semibold tracking-wider px-4 py-1.5 rounded-full inline-block mb-4">Gerbang Ilmu Digital</span>
+            <h1 id="txt-hero-title" contenteditable="true" class="text-4xl md:text-6xl font-black tracking-tight mb-6 bg-gradient-to-r from-white via-purple-100 to-purple-300 bg-clip-text text-transparent">Pusat Sumber Skylert 2026</h1>
+            <p id="txt-hero-desc" contenteditable="true" class="text-base md:text-xl text-purple-200/90 max-w-2xl mx-auto mb-10 font-light">Melangkah ke hadapan dalam menyemai budaya membaca dan literasi digital yang dinamik, profesional, and berimpak tinggi.</p>
+        </div>
+    </section>
+
+    <section id="nilam" class="py-20 container mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 id="txt-nilam-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Aktiviti & Data NILAM</h2>
+            <p id="txt-nilam-desc" contenteditable="true" class="text-slate-500 mt-2">Sistem Nadi Ilmu Amalan Membaca peringkat sekolah.</p>
+            <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-6 text-xl"><i class="fas fa-plus-circle"></i></div>
+                <h3 id="txt-n1-title" contenteditable="true" class="font-bold text-xl mb-3">Perekodan Mudah</h3>
+                <p id="txt-n1-desc" contenteditable="true" class="text-slate-600 text-sm mb-6 leading-relaxed">Isi maklumat bacaan anda secara digital dengan pantas di mana-mana sahaja menerusi borang Google Form rasmi kami.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100">
+                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-6 text-xl"><i class="fas fa-trophy"></i></div>
+                <h3 id="txt-n2-title" contenteditable="true" class="font-bold text-xl mb-3">Anugerah Bintang</h3>
+                <p id="txt-n2-desc" contenteditable="true" class="text-slate-600 text-sm mb-6 leading-relaxed">Sistem pengiktirafan bilangan bacaan. Kumpulkan jumlah buku bagi melayakkan anda mendapat penarafan sehingga 5 Bintang.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100">
+                <div class="w-12 h-12 bg-fuchsia-100 rounded-xl flex items-center justify-center text-fuchsia-600 mb-6 text-xl"><i class="fas fa-chart-bar"></i></div>
+                <h3 id="txt-n3-title" contenteditable="true" class="font-bold text-xl mb-3">Statistik Semasa</h3>
+                <p id="txt-n3-desc" contenteditable="true" class="text-slate-600 text-sm mb-6 leading-relaxed">Lihat carta kedudukan kelas teratas dan jumlah keseluruhan bahan bacaan yang telah direkodkan sepanjang tahun 2026.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="rak-maya" class="py-20 bg-purple-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 id="txt-rak-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Rak Buku Maya (E-Book)</h2>
+                <p id="txt-rak-desc" contenteditable="true" class="text-slate-500 mt-2">Akses kepada ratusan bahan bacaan digital secara percuma, bila-bila masa.</p>
+                <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="flex justify-center mb-10">
+                <button id="btn-add-buku" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
+                    <i class="fas fa-plus"></i> <span>Tambah E-Book Baru</span>
+                </button>
+            </div>
+
+            <div id="rak-buku-container" class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                </div>
+        </div>
+    </section>
+
+    <section id="tvpss" class="py-20 container mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 id="txt-tvpss-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">YouTube TvPSS</h2>
+            <p id="txt-tvpss-desc" contenteditable="true" class="text-slate-500 mt-2">Saluran berita, aktiviti sekolah, dan perkongsian ilmu digital hasil produksi murid.</p>
+            <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+        </div>
+        <div class="max-w-4xl mx-auto bg-white p-4 rounded-3xl shadow-md border border-purple-100">
+            <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner flex items-center justify-center">
+                <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="TvPSS Video Player" frameborder="0"></iframe>
+            </div>
+            <div class="p-6">
+                <h3 id="txt-tvpss-video-title" contenteditable="true" class="font-bold text-xl text-slate-900 mt-3">Laporan Khas Mingguan: Aktiviti Pusat Sumber Skylert 2026</h3>
+                <p id="txt-tvpss-video-sub" contenteditable="true" class="text-slate-500 text-sm mt-1">Diterbitkan oleh krew TvPSS Skylert Media</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pengurusan" class="py-20 bg-slate-100/80 border-y border-purple-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 id="txt-mgr-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Pengurusan Pusat Sumber</h2>
+                <p id="txt-mgr-desc" contenteditable="true" class="text-slate-500 mt-2">Tunjang utama pentadbiran, visi, dan carta organisasi PSS.</p>
+                <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+                <div class="bg-gradient-to-br from-purple-800 to-purple-950 p-8 rounded-2xl text-white shadow-sm">
+                    <h3 class="font-bold text-xl mb-3 flex items-center"><i class="fas fa-eye mr-3 text-purple-300"></i> Visi</h3>
+                    <p id="txt-visi" contenteditable="true" class="text-purple-100/90 text-sm leading-relaxed font-light">"Menjadikan Pusat Sumber Skylert sebagai pusat kecemerlangan maklumat, teknologi, dan literasi yang melahirkan generasi madani berilmu berkelas dunia menjelang tahun 2026."</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-purple-100 shadow-sm">
+                    <h3 class="font-bold text-xl mb-3 text-slate-950 flex items-center"><i class="fas fa-bullseye mr-3 text-purple-600"></i> Misi</h3>
+                    <p id="txt-misi" contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Menyediakan persekitaran pembelajaran kondusif, mempelbagaikan koleksi bahan digital dan fizikal berkualiti, serta memperkasa kompetensi teknologi maklumat dalam kalangan warga sekolah.</p>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl border border-purple-100 shadow-sm">
+                <h3 id="txt-carta-title" contenteditable="true" class="font-bold text-xl mb-6 text-center text-slate-900">Jawatankuasa Tertinggi Pengurusan</h3>
+                <div class="divide-y divide-purple-50">
+                    <div class="py-3.5 flex justify-between items-center text-sm">
+                        <span id="lbl-p1" contenteditable="true" class="font-medium text-slate-500">Pengerusi (Guru Besar / Pengetua)</span>
+                        <span id="txt-p1" contenteditable="true" class="font-bold text-slate-900">Encik Mustaffa bin Rahman</span>
+                    </div>
+                    <div class="py-3.5 flex justify-between items-center text-sm">
+                        <span id="lbl-p2" contenteditable="true" class="font-medium text-slate-500">Naib Pengerusi (GPK Pentadbiran)</span>
+                        <span id="txt-p2" contenteditable="true" class="font-bold text-slate-900">Puan Hajah Siti Zubaidah</span>
+                    </div>
+                    <div class="py-3.5 flex justify-between items-center text-sm">
+                        <span id="lbl-p3" contenteditable="true" class="font-medium text-slate-500">Guru Perpustakaan & Media (GPM)</span>
+                        <span id="txt-p3" contenteditable="true" class="font-bold text-purple-700">Cik Norashikin binti Mohd Ali</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pengawas" class="py-20 container mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-10">
+            <h2 id="txt-pengawas-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Lembaga Pengawas Pusat Sumber</h2>
+            <p id="txt-pengawas-desc" contenteditable="true" class="text-slate-500 mt-2">Barisan kepimpinan murid yang berdedikasi menjaga ketertiban dan kelancaran PSS.</p>
+            <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <div class="flex justify-center mb-10">
+            <button id="btn-add-pengawas" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
+                <i class="fas fa-plus"></i> <span>Tambah Pengawas Baru</span>
+            </button>
+        </div>
+
+        <div id="pengawas-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            </div>
+    </section>
+
+    <footer class="bg-slate-950 text-slate-400 py-12 text-sm border-t border-slate-900">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2026 Visual CMS Editor. Pengurusan Konten Berpusat.</p>
+        </div>
+    </footer>
+
+    <div id="modal-form" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="bg-purple-900 p-4 text-white font-bold flex justify-between items-center">
+                <span id="modal-title">Tambah Data</span>
+                <button id="btn-close-modal" class="text-purple-200 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="form-cms" class="p-6 space-y-4">
+                <div id="form-fields" class="space-y-4"></div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition">Masukkan ke Senarai Sesi</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const repoOwner = "safurazakaria";
+        const repoName = "skklt";
+        
+        // PENTING: Untuk kegunaan production GitHub API, Nana digalakkan simpan Token Github 
+        // dalam prompt browser atau setup proxy. Di sini makcik sediakan prompt bagi keselamatan token.
+        let githubToken = localStorage.getItem('gh_token') || '';
+        if (!githubToken) {
+            githubToken = prompt("Sila masukkan GitHub Personal Access Token (PAT) anda untuk menyimpan:");
+            if (githubToken) localStorage.setItem('gh_token', githubToken);
+        }
+
+        // State storage holding data locally before publishing in one single payload batch
+        let memoryStore = {
+            rak_buku: [],
+            pengawas: [],
+            text_changes: {}
+        };
+
+        // UI Element Selectors
+        const modal = document.getElementById('modal-form');
+        const modalTitle = document.getElementById('modal-title');
+        const formFields = document.getElementById('form-fields');
+        let currentType = ""; 
+
+        // Nav Toggle logic
+        document.getElementById('nav-toggle').addEventListener('click', () => {
+            document.getElementById('nav-content').classList.toggle('hidden');
+        });
+
+        // -----------------------------------------------------------------
+        // LOAD DATA SEDIA ADA DARIPADA GITHUB API MASUK KE DALAM MEMORI EDITOR
+        // -----------------------------------------------------------------
+        function parseFrontmatter(text) {
+            const obj = { body: "" };
+            const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
+            if (match) {
+                const lines = match[1].split('\n');
+                lines.forEach(line => {
+                    const parts = line.split(':');
+                    if (parts.length >= 2) {
+                        const key = parts[0].trim();
+                        const value = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
+                        obj[key] = value;
+                    }
+                });
+                obj.body = match[2].trim();
+            }
+            return obj;
+        }
+
+        async function initFetchData(folderPath, storageKey, renderFn, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`);
+                if (!response.ok) { container.innerHTML='<p class="text-xs text-purple-400 text-center col-span-full">Tiada data di pelayan.</p>'; return; }
+                const files = await response.json();
+                container.innerHTML = '';
+                
+                for (const file of files) {
+                    if (file.name.endsWith('.md')) {
+                        const fileRes = await fetch(file.download_url);
+                        const fileText = await fileRes.text();
+                        const parsedData = parseFrontmatter(fileText);
+                        parsedData._filename = file.name; // Simpan rujukan fail asal
+                        parsedData._sha = file.sha;
+                        
+                        memoryStore[storageKey].push(parsedData);
+                        renderFn(parsedData, container, memoryStore[storageKey].length - 1);
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = '<p class="text-xs text-red-400 text-center col-span-full">Gagal synchronize data.</p>';
+            }
+        }
+
+        // Render Functions (Mengekalkan sebiji style kad visual asal)
+        function renderBuku(data, container, index) {
+            let bgIcon = "bg-purple-200 text-purple-400"; const kat = (data.kategori || "FIKSYEN").toUpperCase();
+            if (kat === "SAINS") bgIcon = "bg-indigo-200 text-indigo-400";
+            if (kat === "SEJARAH") bgIcon = "bg-fuchsia-200 text-fuchsia-400";
+            if (kat === "MOTIVASI") bgIcon = "bg-violet-200 text-violet-400";
+
+            const visual = data.cover ? `<img src="${data.cover}" class="w-full h-full object-cover">` : `<i class="fas fa-book-open text-5xl"></i>`;
+            const html = `
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-purple-100 p-2 relative group" data-index="${index}">
+                    <button onclick="removeItem('rak_buku', ${index})" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs z-10 hover:bg-red-700 transition"><i class="fas fa-trash"></i></button>
+                    <div class="h-40 ${bgIcon} relative flex items-center justify-center overflow-hidden rounded-lg">${visual}</div>
+                    <div class="p-2">
+                        <h4 class="font-bold text-xs text-slate-900 line-clamp-1">${data.title}</h4>
+                        <p class="text-[10px] text-slate-500">Oleh: ${data.penulis}</p>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function renderPengawas(data, container, index) {
+            const visual = data.gambar ? `<img src="${data.gambar}" class="w-full h-full object-cover">` : `<i class="fas fa-user-tie text-4xl"></i>`;
+            const html = `
+                <div class="bg-white rounded-2xl border border-purple-100 p-4 text-center relative group" data-index="${index}">
+                    <button onclick="removeItem('pengawas', ${index})" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs z-10 hover:bg-red-700 transition"><i class="fas fa-trash"></i></button>
+                    <div class="w-20 h-20 mx-auto rounded-full bg-purple-100 mb-2 flex items-center justify-center text-purple-400 overflow-hidden border-2 border-purple-50">${visual}</div>
+                    <h4 class="font-bold text-sm text-slate-900 line-clamp-1">${data.title}</h4>
+                    <p class="text-[10px] font-semibold text-purple-600 uppercase">${data.jawatan}</p>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeItem(type, index) {
+            if(confirm("Padam item ini daripada senarai sesi?")) {
+                memoryStore[type].splice(index, 1);
+                refreshContainers();
+            }
+        }
+
+        function refreshContainers() {
+            const rContainer = document.getElementById('rak-buku-container');
+            rContainer.innerHTML = '';
+            memoryStore.rak_buku.forEach((d, i) => renderBuku(d, rContainer, i));
+
+            const pContainer = document.getElementById('pengawas-container');
+            pContainer.innerHTML = '';
+            memoryStore.pengawas.forEach((d, i) => renderPengawas(d, pContainer, i));
+        }
+
+        // -----------------------------------------------------------------
+        // INTERFACE TAMBAH DATA (MODAL POPUP BERDASARKAN CONFIG.YML FIELDS)
+        // -----------------------------------------------------------------
+        document.getElementById('btn-add-buku').addEventListener('click', () => {
+            currentType = "rak_buku";
+            modalTitle.innerText = "Tambah Fail Kad Maya (config.yml structure)";
+            formFields.innerHTML = `
+                <div><label class="block text-xs font-bold mb-1">Tajuk Buku</label><input type="text" name="title" required class="w-full border p-2 text-sm rounded-lg"></div>
+                <div><label class="block text-xs font-bold mb-1">Penulis</label><input type="text" name="penulis" required class="w-full border p-2 text-sm rounded-lg"></div>
+                <div><label class="block text-xs font-bold mb-1">Kategori</label><select name="kategori" class="w-full border p-2 text-sm rounded-lg"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select></div>
+                <div><label class="block text-xs font-bold mb-1">Pautan Kulit Buku (URL Gambar / Path)</label><input type="text" name="cover" class="w-full border p-2 text-sm rounded-lg" placeholder="assets/images/buku1.jpg"></div>
+                <div><label class="block text-xs font-bold mb-1">Pautan E-Book (URL)</label><input type="text" name="link" required class="w-full border p-2 text-sm rounded-lg" value="#"></div>
+            `;
+            modal.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-add-pengawas').addEventListener('click', () => {
+            currentType = "pengawas";
+            modalTitle.innerText = "Tambah Pengawas Baru (config.yml structure)";
+            formFields.innerHTML = `
+                <div><label class="block text-xs font-bold mb-1">Nama Penuh</label><input type="text" name="title" required class="w-full border p-2 text-sm rounded-lg"></div>
+                <div><label class="block text-xs font-bold mb-1">Jawatan</label><input type="text" name="jawatan" required class="w-full border p-2 text-sm rounded-lg" placeholder="Pengawas PSS"></div>
+                <div><label class="block text-xs font-bold mb-1">Pautan Gambar (URL / Path)</label><input type="text" name="gambar" class="w-full border p-2 text-sm rounded-lg" placeholder="assets/images/pengawas1.jpg"></div>
+            `;
+            modal.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.add('hidden'));
+
+        document.getElementById('form-cms').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newItem = {};
+            formData.forEach((val, key) => newItem[key] = val);
+            
+            // Generate standard dynamic safe filename slug
+            const slug = newItem.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
+            newItem._filename = `${slug}.md`;
+            
+            memoryStore[currentType].push(newItem);
+            refreshContainers();
+            modal.classList.add('hidden');
+        });
+
+        // -----------------------------------------------------------------
+        // LOGIK PENGUMPULAN DATA SELEPAS HABIS EDIT (BULK SAVE ALL TO GITHUB)
+        // -----------------------------------------------------------------
+        document.getElementById('btn-save-all').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-save-all');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Sedang Menyimpan Kesemuanya...</span>`;
+
+            // 1. Ekstrak teks statik html yang telah diubah suai oleh admin
+            const textElements = document.querySelectorAll('[contenteditable="true"]');
+            textElements.forEach(el => {
+                if(el.id) {
+                    memoryStore.text_changes[el.id] = el.innerText.trim();
+                }
+            });
+
+            try {
+                // Bahagian A: Kemas kini fail index.html utama dengan nilai teks tulisan baru
+                const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html`;
+                const getIndexRes = await fetch(indexUrl);
+                if(!getIndexRes.ok) throw new Error("Gagal dapatkan fail index.html asal dari GitHub.");
+                const indexData = await getIndexRes.json();
+                let decodedHtml = decodeURIComponent(escape(atob(indexData.content)));
+
+                // Proses gantikan teks lama ke teks baru berasaskan ID elemen
+                Object.keys(memoryStore.text_changes).forEach(id => {
+                    const regex = new RegExp(`id="${id}"([^>]*?)>([^<]*?)<`, 'g');
+                    decodedHtml = decodedHtml.replace(regex, `id="${id}"$1>${memoryStore.text_changes[id]}<`);
+                });
+
+                // Hantar update fail index.html ke github
+                await pushToGitHub('index.html', decodedHtml, indexData.sha, "Admin Visual Update: Teks Halaman Utama");
+
+                // Bahagian B: Simpan Markdown items untuk koleksi dynamic (Rak Buku & Pengawas)
+                // Nota: Untuk fungsi batching yang lancar, kita hantar pergerakan data berasingan secara berturutan
+                for(let item of memoryStore.rak_buku) {
+                    const mdContent = `---\ntitle: "${item.title}"\njawatan: ""\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover || ''}"\nlink: "${item.link || '#'}"\n---`;
+                    await pushToGitHub(`data/rak_buku/${item._filename}`, mdContent, item._sha || null, `Kemaskini Buku: ${item.title}`);
+                }
+
+                for(let item of memoryStore.pengawas) {
+                    const mdContent = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar || ''}"\n---`;
+                    await pushToGitHub(`data/pengawas/${item._filename}`, mdContent, item._sha || null, `Kemaskini Pengawas: ${item.title}`);
+                }
+
+                alert("🎉 Hebat Nana! Semua perubahan teks statik & data penambahan baru telah berjaya dihantar sekali gus ke repositori GitHub!");
+                window.location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert("Ralat semasa melakukan batch commit: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>`;
+            }
+        });
+
+        // Helper function pushing direct payload string to github contents endpoint
+        async function pushToGitHub(path, content, sha = null, commitMsg = "Kemasukan data CMS") {
+            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+            const bodyData = {
+                message: commitMsg,
+                content: btoa(unescape(encodeURIComponent(content)))
+            };
+            if (sha) bodyData.sha = sha;
+
+            const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${githubToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyData)
+            });
+            return res.json();
+        }
+
+        // Trigger loading synchronization on boot
+        document.addEventListener("DOMContentLoaded", () => {
+            initFetchData('data/rak_buku', 'rak_buku', renderBuku, 'rak-buku-container');
+            initFetchData('data/pengawas', 'pengawas', renderPengawas, 'pengawas-container');
+        });
+    </script>
 </body>
 </html>
