@@ -304,27 +304,29 @@
         let memoryStore = { nilam: [], rak_buku: [], tvpss: [], pengawas: [], program: [] };
         let activeEditableElement = null;
 
-        // FETCH SYNC ENGINE
         async function ambilDataPelayanCms(folderPath, storeKey, renderFn, containerId) {
-            const container = document.getElementById(containerId);
-            try {
-                const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`);
-                if(!res.ok) return;
-                const files = await res.json();
-                container.innerHTML = '';
-                for(let file of files) {
-                    if(file.name.endsWith('.md')) {
-                        const fRes = await fetch(file.download_url);
-                        const txt = await fRes.text();
-                        let parsed = parseFrontmatter(txt);
-                        parsed._filename = file.name;
-                        parsed._sha = file.sha;
-                        memoryStore[storeKey].push(parsed);
-                        renderFn(parsed, container, memoryStore[storeKey].length - 1);
-                    }
-                }
-            } catch(e) { console.error(e); }
+    const container = document.getElementById(containerId);
+    try {
+        // TAMBAH HEADERS AUTHORIZATION DI SINI
+        const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`, {
+            headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
+        });
+        if(!res.ok) return;
+        const files = await res.json();
+        container.innerHTML = '';
+        for(let file of files) {
+            if(file.name.endsWith('.md')) {
+                const fRes = await fetch(file.download_url);
+                const txt = await fRes.text();
+                let parsed = parseFrontmatter(txt);
+                parsed._filename = file.name;
+                parsed._sha = file.sha;
+                memoryStore[storeKey].push(parsed);
+                renderFn(parsed, container, memoryStore[storeKey].length - 1);
+            }
         }
+    } catch(e) { console.error(e); }
+}
 
         function parseFrontmatter(text) {
     const obj = { body: "" };
@@ -512,8 +514,10 @@ window.gunakanTetapanLatarAdvance = async function() {
             
             try {
                 // 1. Ambil fail index.html (main) asal yang bersih dari GitHub
-                const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html`;
-                const getIndexRes = await fetch(indexUrl);
+                const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html?t=${Date.now()}`;
+const getIndexRes = await fetch(indexUrl, {
+    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
+});
                 if(!getIndexRes.ok) throw new Error("Gagal membaca fail index.html utama dari GitHub.");
                 const indexData = await getIndexRes.json();
                 
