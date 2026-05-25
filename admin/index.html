@@ -311,7 +311,6 @@
 const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`, {
     headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
 });
-        });
         if(!res.ok) return;
         const files = await res.json();
         container.innerHTML = '';
@@ -326,7 +325,9 @@ const fRes = await fetch(`${file.download_url}?t=${Date.now()}`);
                 renderFn(parsed, container, memoryStore[storeKey].length - 1);
             }
         }
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+            console.error(e); 
+        }
 }
 
         function parseFrontmatter(text) {
@@ -398,14 +399,14 @@ class="w-full border p-2 rounded"><input type="text" name="link" placeholder="UR
             item.cover = await imageToBase64(fileInput.files[0]);
         } catch (error) {
             console.error("Gagal menukar imej ke Base64:", error);
-        }
+        } 
     }
-    // ======================================
 
     memoryStore[currentType].push(item); 
     buatUlangPaparan(); 
     modalF.classList.add('hidden'); 
 });
+        
         // TEXT EDITOR LAYOUT BINDINGS
         document.addEventListener('click', (e) => { const ed = e.target.closest('[contenteditable="true"]'); if (ed) { activeEditableElement = ed; document.getElementById('text-style-bar').classList.remove('hidden'); } });
         window.toggleStylingBarManual = function() { document.getElementById('text-style-bar').classList.toggle('hidden'); };
