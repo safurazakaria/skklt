@@ -521,7 +521,7 @@ const getIndexRes = await fetch(indexUrl, {
     headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
 });
                 if(!getIndexRes.ok) throw new Error("Gagal membaca fail index.html utama dari GitHub.");
-                const indexData = await getIndexRes.json();
+                let indexData = await getIndexRes.json();
                 
                 // Dekod kandungan asal index.html dari GitHub ke dalam bentuk teks string
                 let publicHtmlRaw = decodeURIComponent(escape(atob(indexData.content)));
