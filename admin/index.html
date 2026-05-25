@@ -579,30 +579,36 @@ const getIndexRes = await fetch(indexUrl, {
 
                 // 3. PROSES PUSH (Hantar index.html yang dikemaskini & semua fail data .md)
                 
-                // Hantar fail index.html utama yang dah siap dikemaskini teksnya
-                await pushToGitHub('index.html', updatedPublicHtmlString, indexData.sha);
+                const shaIndexBaru = await pushToGitHub('index.html', updatedPublicHtmlString, indexData.sha);
+indexData.sha = shaIndexBaru;
 
-                // Hantar data kad dynamic (.md) bagi setiap seksyen
-                for(let item of memoryStore.nilam) {
-                    let md = `---\ntitle: "${item.title}"\nicon: "fa-star"\n---\n${item.body || ''}`;
-                    await pushToGitHub(`data/nilam/${item._filename}`, md, item._sha);
-                }
-                for(let item of memoryStore.rak_buku) {
-                    let md = `---\ntitle: "${item.title}"\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover}"\nlink: "${item.link}"\n---`;
-                    await pushToGitHub(`data/rak_buku/${item._filename}`, md, item._sha);
-                }
-                for(let item of memoryStore.tvpss) {
-                    let md = `---\ntitle: "${item.title}"\nembed_url: "${item.embed_url}"\ndesc: "${item.desc}"\n---`;
-                    await pushToGitHub(`data/tvpss/${item._filename}`, md, item._sha);
-                }
-                for(let item of memoryStore.pengawas) {
-                    let md = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar}"\n---`;
-                    await pushToGitHub(`data/pengawas/${item._filename}`, md, item._sha);
-                }
-                for(let item of memoryStore.program) {
-                    let md = `---\ntitle: "${item.title}"\ntimeline: "${item.timeline}"\nstatus: "${item.status}"\ndesc: "${item.desc}"\n---`;
-                    await pushToGitHub(`data/program/${item._filename}`, md, item._sha);
-                }
+                // === HANTAR DATA KAD DYNAMIC (.MD) BERSERTA KEMAS KINI SHA SENYAP ===
+
+for(let item of memoryStore.nilam) {
+    let md = `---\ntitle: "${item.title}"\nicon: "fa-star"\n---\n${item.body || ''}`;
+    // Simpan SHA baharu terus ke dalam item memori supaya boleh di-edit lagi tanpa refresh
+    item._sha = await pushToGitHub(`data/nilam/${item._filename}`, md, item._sha);
+}
+
+for(let item of memoryStore.rak_buku) {
+    let md = `---\ntitle: "${item.title}"\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover}"\nlink: "${item.link}"\n---`;
+    item._sha = await pushToGitHub(`data/rak_buku/${item._filename}`, md, item._sha);
+}
+
+for(let item of memoryStore.tvpss) {
+    let md = `---\ntitle: "${item.title}"\nembed_url: "${item.embed_url}"\ndesc: "${item.desc}"\n---`;
+    item._sha = await pushToGitHub(`data/tvpss/${item._filename}`, md, item._sha);
+}
+
+for(let item of memoryStore.pengawas) {
+    let md = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar}"\n---`;
+    item._sha = await pushToGitHub(`data/pengawas/${item._filename}`, md, item._sha);
+}
+
+for(let item of memoryStore.program) {
+    let md = `---\ntitle: "${item.title}"\ntimeline: "${item.timeline}"\nstatus: "${item.status}"\ndesc: "${item.desc}"\n---`;
+    item._sha = await pushToGitHub(`data/program/${item._filename}`, md, item._sha);
+}
 
                 alert("🎉 Semua pengubahan perkataan teks utama serta data kad baharu telah berjaya disimpan terus ke GitHub!");
 
@@ -615,13 +621,30 @@ const getIndexRes = await fetch(indexUrl, {
             }
         });
 
-        async function pushToGitHub(path, content, sha = null) {
-            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-            const bodyData = { message: `Kemasukan data Visual Admin: ${path}`, content: btoa(unescape(encodeURIComponent(content))) };
-            if (sha) bodyData.sha = sha;
-            const res = await fetch(url, { method: "PUT", headers: { "Authorization": `token ${githubToken}`, "Content-Type": "application/json" }, body: JSON.stringify(bodyData) });
-            return res.json();
-        }
+        async function pushToGitHub(path, content, sha) {
+    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+    const bodyData = {
+        message: `Kemas kini visual builder: ${path}`,
+        content: btoa(unescape(encodeURIComponent(content))),
+        branch: "main"
+    };
+    if (sha) bodyData.sha = sha;
+
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Authorization": `token ${githubToken}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bodyData)
+    });
+
+    if (!res.ok) throw new Error(`Gagal push ${path}`);
+    
+    // AMBIL DATA RESPONS BARU UNTUK UPDATE SHA
+    const resData = await res.json();
+    return resData.content.sha; // Pulangkan SHA terkini dari GitHub
+}
 
         document.addEventListener("DOMContentLoaded", () => {
 // Letak dalam fungsi document.addEventListener("DOMContentLoaded", () => { ... })
