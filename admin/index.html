@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Editor Admin - PSS Skylert 2026</title>
+    <title>Visual Web Builder Admin - PSS Skylert 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,7 +11,8 @@
         ::-webkit-scrollbar-track { background: #f3e8ff; }
         ::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #7e22ce; }
-        /* Indicator untuk text yang boleh diedit */
+        
+        /* Indikator visual untuk elemen yang boleh diedit */
         [contenteditable="true"]:hover {
             outline: 2px dashed #a855f7;
             background-color: rgba(168, 85, 247, 0.05);
@@ -21,21 +22,30 @@
             outline: 2px solid #a855f7;
             background-color: rgba(168, 85, 247, 0.1);
         }
+        
+        /* Hover effect khusus untuk kad yang boleh dipadam oleh admin */
+        .card-item:hover .admin-delete-btn {
+            opacity: 1;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans leading-normal tracking-normal pt-12">
+<body class="bg-slate-50 text-slate-800 font-sans leading-normal tracking-normal pt-16">
 
-    <div class="fixed top-0 left-0 right-0 bg-slate-900 text-white z-50 px-6 py-3 flex justify-between items-center shadow-md">
+    <!-- BAR PENTADBIR UTAMA (Sticky Top) -->
+    <div id="admin-bar" class="fixed top-0 left-0 right-0 bg-slate-950 text-white z-50 px-6 py-3 flex flex-wrap justify-between items-center shadow-md border-b border-purple-900/40">
         <div class="flex items-center space-x-3">
-            <span class="bg-purple-600 text-xs uppercase px-2 py-1 rounded font-bold animate-pulse">Mod Admin Editor</span>
-            <p class="text-xs text-slate-300 hidden md:block">Klik pada mana-mana teks untuk edit. Perubahan hanya akan dihantar ke GitHub bila anda tekan butang Simpan.</p>
+            <span class="bg-purple-600 text-xs uppercase px-2 py-1 rounded font-bold animate-pulse">Visual Builder Mode</span>
+            <p class="text-xs text-slate-300 hidden lg:block">Klik teks untuk edit, klik logo untuk tukar imej, guna panel kanan untuk tukar background & tambah elemen.</p>
         </div>
-        <button id="btn-save-all" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-emerald-950/50">
-            <i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>
-        </button>
+        <div class="flex items-center space-x-3">
+            <button id="btn-save-all" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-emerald-950/50">
+                <i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>
+            </button>
+        </div>
     </div>
 
-    <nav class="fixed w-full z-30 top-12 bg-white/90 backdrop-blur-md shadow-sm border-b border-purple-100">
+    <!-- NAVIGATION (Boleh Diedit Nama PSS) -->
+    <nav id="navbar-section" class="fixed w-full z-30 top-14 bg-white/95 backdrop-blur-md shadow-sm border-b border-purple-100 transition-all duration-300">
         <div class="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 py-3 px-6">
             <div class="flex items-center space-x-3">
                 <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-2.5 rounded-xl text-white shadow-md shadow-purple-200">
@@ -43,13 +53,11 @@
                 </div>
                 <span id="txt-nav-title" contenteditable="true" class="font-bold text-xl tracking-tight bg-gradient-to-r from-purple-700 to-indigo-700 bg-clip-text text-transparent">Skylert PSS 2026</span>
             </div>
-            
             <div class="block lg:hidden">
                 <button id="nav-toggle" class="flex items-center px-3 py-2 text-purple-600 hover:text-purple-900 focus:outline-none">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
-
             <div class="w-full flex-grow lg:flex lg:items-center lg:w-auto hidden mt-2 lg:mt-0 bg-transparent p-4 lg:p-0 z-20" id="nav-content">
                 <ul class="list-reset lg:flex justify-end flex-1 items-center space-y-2 lg:space-y-0 lg:space-x-2 font-medium text-sm">
                     <li><a class="inline-block text-purple-600 hover:text-purple-900 hover:bg-purple-50 px-4 py-2 rounded-lg transition" href="#hero">Utama</a></li>
@@ -64,42 +72,86 @@
         </div>
     </nav>
 
-    <section id="hero" class="pt-32 pb-20 bg-gradient-to-b from-purple-900 via-indigo-950 to-slate-50 text-white relative overflow-hidden">
+    <!-- HERO SECTION (Kategori Theme Background Boleh Ditukar) -->
+    <section id="hero" class="pt-32 pb-20 bg-gradient-to-b from-purple-900 via-indigo-950 to-slate-50 text-white relative overflow-hidden transition-all duration-500 bg-cover bg-center">
+        <!-- BUTANG BACKGROUND SETTINGS -->
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('hero')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG Hero</span>
+            </button>
+        </div>
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
         <div class="container mx-auto px-6 text-center relative z-10">
+            
+            <!-- LOGO SEKOLAH (Clickable to change URL / Upload File) -->
+            <div class="flex flex-col items-center justify-center mb-6">
+                <div class="relative group cursor-pointer inline-block" id="school-logo-container" onclick="openLogoSettings()">
+                    <img id="img-school-logo" src="https://placehold.co/120x120/a855f7/ffffff?text=LOGO" class="h-28 w-28 object-contain rounded-full border-4 border-purple-500/30 p-2 bg-white/10 backdrop-blur-sm shadow-lg transition duration-300 hover:scale-105" alt="Logo Sekolah">
+                    <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <span class="text-[10px] text-white font-bold uppercase tracking-wider"><i class="fas fa-camera"></i> Tukar Logo</span>
+                    </div>
+                </div>
+            </div>
+
             <span id="txt-hero-tag" contenteditable="true" class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs uppercase font-semibold tracking-wider px-4 py-1.5 rounded-full inline-block mb-4">Gerbang Ilmu Digital</span>
             <h1 id="txt-hero-title" contenteditable="true" class="text-4xl md:text-6xl font-black tracking-tight mb-6 bg-gradient-to-r from-white via-purple-100 to-purple-300 bg-clip-text text-transparent">Pusat Sumber Skylert 2026</h1>
             <p id="txt-hero-desc" contenteditable="true" class="text-base md:text-xl text-purple-200/90 max-w-2xl mx-auto mb-10 font-light">Melangkah ke hadapan dalam menyemai budaya membaca dan literasi digital yang dinamik, profesional, and berimpak tinggi.</p>
         </div>
     </section>
 
-    <section id="nilam" class="py-20 container mx-auto px-6">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 id="txt-nilam-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Aktiviti & Data NILAM</h2>
-            <p id="txt-nilam-desc" contenteditable="true" class="text-slate-500 mt-2">Sistem Nadi Ilmu Amalan Membaca peringkat sekolah.</p>
-            <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+    <!-- SECTION: NILAM -->
+    <section id="nilam" class="py-20 relative transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('nilam')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG NILAM</span>
+            </button>
         </div>
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 id="txt-nilam-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Aktiviti & Data NILAM</h2>
+                <p id="txt-nilam-desc" contenteditable="true" class="text-slate-500 mt-2">Sistem Nadi Ilmu Amalan Membaca peringkat sekolah.</p>
+                <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+            </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100">
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-6 text-xl"><i class="fas fa-plus-circle"></i></div>
-                <h3 id="txt-n1-title" contenteditable="true" class="font-bold text-xl mb-3">Perekodan Mudah</h3>
-                <p id="txt-n1-desc" contenteditable="true" class="text-slate-600 text-sm mb-6 leading-relaxed">Isi maklumat bacaan anda secara digital dengan pantas di mana-mana sahaja menerusi borang Google Form rasmi kami.</p>
+            <div class="flex justify-center mb-8 admin-only">
+                <button id="btn-add-nilam" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow flex items-center space-x-2">
+                    <i class="fas fa-plus"></i> <span>Tambah Kad Aktiviti NILAM</span>
+                </button>
             </div>
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100">
-                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-6 text-xl"><i class="fas fa-trophy"></i></div>
-                <h3 id="txt-n2-title" contenteditable="true" class="font-bold text-xl mb-3">Anugerah Bintang</h3>
-                <p id="txt-n2-desc" contenteditable="true" class="text-slate-600 text-sm mb-6 leading-relaxed">Sistem pengiktirafan bilangan bacaan. Kumpulkan jumlah buku bagi melayakkan anda mendapat penarafan sehingga 5 Bintang.</p>
-            </div>
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100">
-                <div class="w-12 h-12 bg-fuchsia-100 rounded-xl flex items-center justify-center text-fuchsia-600 mb-6 text-xl"><i class="fas fa-chart-bar"></i></div>
-                <h3 id="txt-n3-title" contenteditable="true" class="font-bold text-xl mb-3">Statistik Semasa</h3>
-                <p id="txt-n3-desc" contenteditable="true" class="text-slate-600 text-sm mb-6 leading-relaxed">Lihat carta kedudukan kelas teratas dan jumlah keseluruhan bahan bacaan yang telah direkodkan sepanjang tahun 2026.</p>
+
+            <div id="nilam-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Kad NILAM 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item">
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-6 text-xl"><i class="fas fa-plus-circle"></i></div>
+                    <h3 contenteditable="true" class="font-bold text-xl mb-3">Perekodan Mudah</h3>
+                    <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Isi maklumat bacaan anda secara digital dengan pantas di mana-mana sahaja menerusi borang Google Form rasmi kami.</p>
+                </div>
+                <!-- Kad NILAM 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item">
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-6 text-xl"><i class="fas fa-trophy"></i></div>
+                    <h3 contenteditable="true" class="font-bold text-xl mb-3">Anugerah Bintang</h3>
+                    <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Sistem pengiktirafan bilangan bacaan. Kumpulkan jumlah buku bagi melayakkan anda mendapat penarafan sehingga 5 Bintang.</p>
+                </div>
+                <!-- Kad NILAM 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item">
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div class="w-12 h-12 bg-fuchsia-100 rounded-xl flex items-center justify-center text-fuchsia-600 mb-6 text-xl"><i class="fas fa-chart-bar"></i></div>
+                    <h3 contenteditable="true" class="font-bold text-xl mb-3">Statistik Semasa</h3>
+                    <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Lihat carta kedudukan kelas teratas dan jumlah keseluruhan bahan bacaan yang telah direkodkan sepanjang tahun 2026.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="rak-maya" class="py-20 bg-purple-50">
+    <!-- SECTION: RAK BUKU MAYA -->
+    <section id="rak-maya" class="py-20 bg-purple-50 relative transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('rak-maya')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG Rak Maya</span>
+            </button>
+        </div>
         <div class="container mx-auto px-6">
             <div class="text-center max-w-3xl mx-auto mb-10">
                 <h2 id="txt-rak-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Rak Buku Maya (E-Book)</h2>
@@ -114,32 +166,65 @@
             </div>
 
             <div id="rak-buku-container" class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                <!-- Loaded Dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: YOUTUBE TVPSS -->
+    <section id="tvpss" class="py-20 relative transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('tvpss')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG TvPSS</span>
+            </button>
+        </div>
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 id="txt-tvpss-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">YouTube TvPSS</h2>
+                <p id="txt-tvpss-desc" contenteditable="true" class="text-slate-500 mt-2">Saluran berita, aktiviti sekolah, dan perkongsian ilmu digital hasil produksi murid.</p>
+                <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="flex justify-center mb-10 admin-only">
+                <button id="btn-add-tvpss" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow flex items-center space-x-2">
+                    <i class="fas fa-plus"></i> <span>Tambah Siaran TVPSS Baru</span>
+                </button>
+            </div>
+
+            <div id="tvpss-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Video Item 1 -->
+                <div class="bg-white p-4 rounded-3xl shadow-md border border-purple-100 relative group card-item">
+                    <button class="admin-only admin-delete-btn absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md opacity-0 z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner relative flex items-center justify-center">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="TvPSS Video Player" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="p-6">
+                        <span contenteditable="true" class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wide inline-flex items-center"><i class="fas fa-circle text-[8px] mr-1.5 animate-pulse"></i> Siaran Terbaru</span>
+                        <h3 contenteditable="true" class="font-bold text-xl text-slate-900 mt-3">Laporan Khas Mingguan: Aktiviti Pusat Sumber Skylert 2026</h3>
+                        <p contenteditable="true" class="text-slate-500 text-sm mt-1">Diterbitkan oleh krew TvPSS Skylert Media</p>
+                        
+                        <!-- Box khas admin untuk ubah link youtube -->
+                        <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-purple-200 admin-only">
+                            <label class="block text-[10px] font-bold text-purple-700 uppercase mb-1">Pautan Embed YouTube:</label>
+                            <input type="text" value="https://www.youtube.com/embed/dQw4w9WgXcQ" class="w-full border text-xs p-2 rounded focus:ring-1 focus:ring-purple-500 outline-none" oninput="updateYoutubeIframe(this)">
+                        </div>
+                    </div>
                 </div>
-        </div>
-    </section>
-
-    <section id="tvpss" class="py-20 container mx-auto px-6">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 id="txt-tvpss-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">YouTube TvPSS</h2>
-            <p id="txt-tvpss-desc" contenteditable="true" class="text-slate-500 mt-2">Saluran berita, aktiviti sekolah, dan perkongsian ilmu digital hasil produksi murid.</p>
-            <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
-        </div>
-        <div class="max-w-4xl mx-auto bg-white p-4 rounded-3xl shadow-md border border-purple-100">
-            <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner flex items-center justify-center">
-                <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="TvPSS Video Player" frameborder="0"></iframe>
-            </div>
-            <div class="p-6">
-                <h3 id="txt-tvpss-video-title" contenteditable="true" class="font-bold text-xl text-slate-900 mt-3">Laporan Khas Mingguan: Aktiviti Pusat Sumber Skylert 2026</h3>
-                <p id="txt-tvpss-video-sub" contenteditable="true" class="text-slate-500 text-sm mt-1">Diterbitkan oleh krew TvPSS Skylert Media</p>
             </div>
         </div>
     </section>
 
-    <section id="pengurusan" class="py-20 bg-slate-100/80 border-y border-purple-50">
+    <!-- SECTION: PENGURUSAN PUSAT SUMBER -->
+    <section id="pengurusan" class="py-20 bg-slate-100/80 border-y border-purple-50 relative transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('pengurusan')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG Pengurusan</span>
+            </button>
+        </div>
         <div class="container mx-auto px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 id="txt-mgr-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Pengurusan Pusat Sumber</h2>
-                <p id="txt-mgr-desc" contenteditable="true" class="text-slate-500 mt-2">Tunjang utama pentadbiran, visi, dan carta organisasi PSS.</p>
+                <p id="txt-mgr-desc" contenteditable="true" class="text-slate-500 mt-2">Tunjang utama pentadbiran, visi, and carta organisasi PSS.</p>
                 <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
             </div>
 
@@ -174,31 +259,112 @@
         </div>
     </section>
 
-    <section id="pengawas" class="py-20 container mx-auto px-6">
-        <div class="text-center max-w-3xl mx-auto mb-10">
-            <h2 id="txt-pengawas-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Lembaga Pengawas Pusat Sumber</h2>
-            <p id="txt-pengawas-desc" contenteditable="true" class="text-slate-500 mt-2">Barisan kepimpinan murid yang berdedikasi menjaga ketertiban dan kelancaran PSS.</p>
-            <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
-        </div>
-
-        <div class="flex justify-center mb-10">
-            <button id="btn-add-pengawas" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
-                <i class="fas fa-plus"></i> <span>Tambah Pengawas Baru</span>
+    <!-- SECTION: PENGAWAS PSS -->
+    <section id="pengawas" class="py-20 relative transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('pengawas')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG Pengawas</span>
             </button>
         </div>
-
-        <div id="pengawas-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 id="txt-pengawas-title" contenteditable="true" class="text-3xl font-extrabold text-slate-950 tracking-tight">Lembaga Pengawas Pusat Sumber</h2>
+                <p id="txt-pengawas-desc" contenteditable="true" class="text-slate-500 mt-2">Barisan kepimpinan murid yang berdedikasi menjaga ketertiban dan kelancaran PSS.</p>
+                <div class="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
             </div>
+
+            <div class="flex justify-center mb-10">
+                <button id="btn-add-pengawas" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
+                    <i class="fas fa-plus"></i> <span>Tambah Pengawas Baru</span>
+                </button>
+            </div>
+
+            <div id="pengawas-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <!-- Loaded Dynamically -->
+            </div>
+        </div>
     </section>
 
-    <footer class="bg-slate-950 text-slate-400 py-12 text-sm border-t border-slate-900">
+    <!-- SECTION: PROGRAM PSS -->
+    <section id="program" class="py-20 bg-purple-900 text-white relative overflow-hidden transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('program')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG Program</span>
+            </button>
+        </div>
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 id="txt-program-title" contenteditable="true" class="text-3xl font-extrabold tracking-tight">Program PSS Sepanjang 2026</h2>
+                <p id="txt-program-desc" contenteditable="true" class="text-purple-200/80 mt-2">Kalendar aktiviti, kempen, dan pengisian menarik yang dirancang khas untuk anda.</p>
+                <div class="w-16 h-1 bg-white/40 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="flex justify-center mb-10 admin-only">
+                <button id="btn-add-program" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition border border-purple-500 shadow flex items-center space-x-2">
+                    <i class="fas fa-plus"></i> <span>Tambah Atur Cara Program</span>
+                </button>
+            </div>
+
+            <div id="program-list-container" class="max-w-3xl mx-auto space-y-6">
+                <!-- Program Item 1 -->
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group card-item">
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div>
+                        <span contenteditable="true" class="text-xs font-bold text-purple-300 uppercase tracking-widest block mb-1">Mac 2026</span>
+                        <h3 contenteditable="true" class="font-bold text-lg text-white">Kempen Dekad Membaca Kebangsaan</h3>
+                        <p contenteditable="true" class="text-purple-200/70 text-sm mt-1">Pelbagai pertandingan ulasan buku, kuiz sastera, dan jualan buku mini.</p>
+                    </div>
+                    <span contenteditable="true" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-medium self-start sm:self-center">Selesai</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="footer-section" class="bg-slate-950 text-slate-400 py-12 text-sm border-t border-slate-900 relative transition-all duration-500 bg-cover bg-center">
+        <div class="admin-only absolute top-4 right-4 z-20">
+            <button onclick="openBgSettings('footer-section')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
+                <i class="fas fa-paint-brush"></i> <span>Ubah BG Footer</span>
+            </button>
+        </div>
         <div class="container mx-auto px-6 text-center">
             <p>&copy; 2026 Visual CMS Editor. Pengurusan Konten Berpusat.</p>
         </div>
     </footer>
 
+    <!-- POPUP MODAL UNTUK EDIT LOGO SEKOLAH -->
+    <div id="modal-logo" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full overflow-hidden">
+            <div class="bg-purple-900 p-4 text-white font-bold flex justify-between items-center">
+                <span>Tukar Logo Sekolah</span>
+                <button onclick="closeLogoSettings()" class="text-purple-200 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex flex-col items-center justify-center border-2 border-dashed border-purple-200 p-4 rounded-xl bg-purple-50/50">
+                    <img id="logo-preview" src="https://placehold.co/100" class="h-20 w-20 object-contain rounded-full border mb-3">
+                    <label class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition">
+                        <i class="fas fa-upload mr-1"></i> Muat Naik Fail Logo
+                        <input type="file" id="logo-file-input" accept="image/*" class="hidden" onchange="processImageFile(this, 'logo')">
+                    </label>
+                </div>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-4 text-slate-400 text-xs font-semibold">ATAU</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Guna Pautan URL Gambar</label>
+                    <input type="text" id="logo-url-input" class="w-full border p-2 text-sm rounded-lg" placeholder="https://...">
+                </div>
+                <button onclick="applyLogoSettings()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition">Simpan Perubahan Logo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP MODAL UNTUK DYNAMIC COLLECTION INPUT (CMS CONFIG FIELDS) -->
     <div id="modal-form" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full overflow-hidden">
             <div class="bg-purple-900 p-4 text-white font-bold flex justify-between items-center">
                 <span id="modal-title">Tambah Data</span>
                 <button id="btn-close-modal" class="text-purple-200 hover:text-white"><i class="fas fa-times"></i></button>
@@ -210,38 +376,341 @@
         </div>
     </div>
 
-    <script>
+    <!-- POPUP MODAL UNTUK EDIT BACKGROUND SETTINGS SECTION -->
+    <div id="modal-bg-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full overflow-hidden">
+            <div class="bg-slate-950 p-4 text-white font-bold flex justify-between items-center">
+                <span>Pengaturan Background Bahagian</span>
+                <button onclick="closeBgSettings()" class="text-slate-300 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="target-section-id">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Background</label>
+                    <select id="bg-type-selector" class="w-full border p-2 text-sm rounded-lg" onchange="toggleBgInputs()">
+                        <option value="none">Default / Kosong (Tiada Custom)</option>
+                        <option value="color">Warna / Kecerunan (Tailwind Classes)</option>
+                        <option value="image">Gambar Latar Belakang</option>
+                    </select>
+                </div>
+
+                <!-- Input untuk Gradient / Warna -->
+                <div id="bg-color-field" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tailwind Gradient / Color Classes</label>
+                    <input type="text" id="bg-classes-input" class="w-full border p-2 text-sm rounded-lg" placeholder="bg-gradient-to-r from-purple-800 to-indigo-950">
+                    <p class="text-[10px] text-slate-400 mt-1">Gunakan kelas Tailwind CSS standard.</p>
+                </div>
+
+                <!-- Input untuk URL Gambar atau Upload -->
+                <div id="bg-image-field" class="hidden space-y-3">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center">
+                        <span class="text-xs text-slate-500 mb-2">Muat naik fail dari komputer/telefon</span>
+                        <label class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition">
+                            <i class="fas fa-image mr-1"></i> Pilih Gambar Latar
+                            <input type="file" id="bg-file-input" accept="image/*" class="hidden" onchange="processImageFile(this, 'background')">
+                        </label>
+                        <div id="bg-file-status" class="text-[10px] text-purple-600 font-bold mt-2"></div>
+                    </div>
+
+                    <div class="relative flex py-1 items-center">
+                        <div class="flex-grow border-t border-slate-200"></div>
+                        <span class="flex-shrink mx-3 text-slate-400 text-[10px] font-semibold">ATAU GUNA URL</span>
+                        <div class="flex-grow border-t border-slate-200"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pautan URL Gambar</label>
+                        <input type="text" id="bg-image-url-input" class="w-full border p-2 text-sm rounded-lg" placeholder="https://images.unsplash.com/photo-...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kegelapan Lapisan Overlay (Dark Mask Opacity)</label>
+                        <input type="range" id="bg-image-opacity-input" min="0" max="0.9" step="0.1" value="0.5" class="w-full accent-purple-600">
+                        <p class="text-[10px] text-slate-400">Menghalang teks daripada sukar dibaca apabila diletakkan gambar latar belakang yang terang.</p>
+                    </div>
+                </div>
+
+                <button onclick="applyBgSettings()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition">Apply Perubahan Visual</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT UTAMA PENGENDALIAN VISUAL WEB BUILDER -->
+    <script id="admin-script" class="admin-only">
         const repoOwner = "safurazakaria";
         const repoName = "skklt";
         
-        // PENTING: Untuk kegunaan production GitHub API, Nana digalakkan simpan Token Github 
-        // dalam prompt browser atau setup proxy. Di sini makcik sediakan prompt bagi keselamatan token.
         let githubToken = localStorage.getItem('gh_token') || '';
         if (!githubToken) {
             githubToken = prompt("Sila masukkan GitHub Personal Access Token (PAT) anda untuk menyimpan:");
             if (githubToken) localStorage.setItem('gh_token', githubToken);
         }
 
-        // State storage holding data locally before publishing in one single payload batch
         let memoryStore = {
             rak_buku: [],
             pengawas: [],
-            text_changes: {}
+            text_changes: {},
+            pending_uploads: [], // Simpan gambar-gambar base64 yang sedia dimuat naik ke GitHub
+            uploaded_logo: null,
+            uploaded_backgrounds: {}
         };
 
-        // UI Element Selectors
         const modal = document.getElementById('modal-form');
         const modalTitle = document.getElementById('modal-title');
         const formFields = document.getElementById('form-fields');
         let currentType = ""; 
 
-        // Nav Toggle logic
+        // Nav Toggle
         document.getElementById('nav-toggle').addEventListener('click', () => {
             document.getElementById('nav-content').classList.toggle('hidden');
         });
 
         // -----------------------------------------------------------------
-        // LOAD DATA SEDIA ADA DARIPADA GITHUB API MASUK KE DALAM MEMORI EDITOR
+        // REUSABLE HELPER: MEMPROSES SEBARANG MUAT NAIK GAMBAR KE BASE64
+        // -----------------------------------------------------------------
+        window.processImageFile = function(inputElement, purpose) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Content = e.target.result.split(',')[1]; // Dapatkan base64 string bersih
+                const cleanFileName = `upload_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                const relativePath = `assets/images/${cleanFileName}`;
+
+                // Simpan payload untuk di-upload semasa Save-All
+                const uploadPayload = {
+                    path: relativePath,
+                    content: base64Content
+                };
+
+                if (purpose === 'logo') {
+                    memoryStore.uploaded_logo = uploadPayload;
+                    document.getElementById('logo-preview').src = e.target.result;
+                    document.getElementById('logo-url-input').value = relativePath;
+                } else if (purpose === 'background') {
+                    const sectionId = document.getElementById('target-section-id').value;
+                    memoryStore.uploaded_backgrounds[sectionId] = uploadPayload;
+                    document.getElementById('bg-image-url-input').value = relativePath;
+                    document.getElementById('bg-file-status').innerText = `✓ Fail sedia diproses: ${file.name}`;
+                } else if (purpose === 'form-image') {
+                    // Simpan gambar form di storan sementara
+                    window.lastUploadedFormImage = uploadPayload;
+                    const previewImg = document.getElementById('form-image-preview');
+                    if (previewImg) previewImg.src = e.target.result;
+                    
+                    const hiddenInput = document.getElementById('form-image-hidden-path');
+                    if (hiddenInput) hiddenInput.value = relativePath;
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // -----------------------------------------------------------------
+        // 1. KAWALAN MENUKAR LOGO SEKOLAH (Click, Upload or Set URL)
+        // -----------------------------------------------------------------
+        window.openLogoSettings = function() {
+            const currentSrc = document.getElementById('img-school-logo').src;
+            document.getElementById('logo-preview').src = currentSrc;
+            document.getElementById('logo-url-input').value = currentSrc.startsWith('data:') ? '' : currentSrc;
+            document.getElementById('modal-logo').classList.remove('hidden');
+        };
+
+        window.closeLogoSettings = function() {
+            document.getElementById('modal-logo').classList.add('hidden');
+        };
+
+        window.applyLogoSettings = function() {
+            const urlVal = document.getElementById('logo-url-input').value.trim();
+            if (urlVal) {
+                document.getElementById('img-school-logo').src = urlVal;
+                // Jika ia adalah imej baru yang diupload, tolak ke pending_uploads
+                if (memoryStore.uploaded_logo && memoryStore.uploaded_logo.path === urlVal) {
+                    memoryStore.pending_uploads.push(memoryStore.uploaded_logo);
+                    memoryStore.uploaded_logo = null; 
+                }
+            }
+            closeLogoSettings();
+        };
+
+        // -----------------------------------------------------------------
+        // 2. BACKGROUND SETTINGS POPUP & LIVE MODAL APPLIER
+        // -----------------------------------------------------------------
+        window.openBgSettings = function(sectionId) {
+            document.getElementById('target-section-id').value = sectionId;
+            document.getElementById('bg-file-status').innerText = "";
+            const targetEl = document.getElementById(sectionId);
+            const modalBg = document.getElementById('modal-bg-settings');
+            
+            const hasStyleBg = targetEl.style.backgroundImage;
+            const currentClasses = targetEl.className;
+            
+            if (hasStyleBg) {
+                document.getElementById('bg-type-selector').value = "image";
+                const urlMatch = hasStyleBg.match(/url\(['"]?([^'"]+)['"]?\)/);
+                if (urlMatch) document.getElementById('bg-image-url-input').value = urlMatch[1];
+                
+                const opacityMatch = hasStyleBg.match(/rgba\(15,\s*23,\s*42,\s*([0-9.]+)\)/) || hasStyleBg.match(/rgba\(0,\s*0,\s*0,\s*([0-9.]+)\)/);
+                if (opacityMatch) {
+                    document.getElementById('bg-image-opacity-input').value = opacityMatch[1];
+                } else {
+                    document.getElementById('bg-image-opacity-input').value = "0.5";
+                }
+            } else {
+                const bgClasses = currentClasses.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('via-') || c.startsWith('to-'));
+                if (bgClasses.length > 0 && !currentClasses.includes('bg-cover')) {
+                    document.getElementById('bg-type-selector').value = "color";
+                    document.getElementById('bg-classes-input').value = bgClasses.join(' ');
+                } else {
+                    document.getElementById('bg-type-selector').value = "none";
+                }
+            }
+            
+            toggleBgInputs();
+            modalBg.classList.remove('hidden');
+        };
+
+        window.closeBgSettings = function() {
+            document.getElementById('modal-bg-settings').classList.add('hidden');
+        };
+
+        window.toggleBgInputs = function() {
+            const type = document.getElementById('bg-type-selector').value;
+            const colorField = document.getElementById('bg-color-field');
+            const imageField = document.getElementById('bg-image-field');
+            
+            colorField.classList.add('hidden');
+            imageField.classList.add('hidden');
+            
+            if (type === "color") colorField.classList.remove('hidden');
+            if (type === "image") imageField.classList.remove('hidden');
+        };
+
+        window.applyBgSettings = function() {
+            const sectionId = document.getElementById('target-section-id').value;
+            const type = document.getElementById('bg-type-selector').value;
+            const targetEl = document.getElementById(sectionId);
+            
+            targetEl.style.backgroundImage = "";
+            targetEl.style.backgroundSize = "";
+            targetEl.style.backgroundPosition = "";
+            
+            let classes = targetEl.className.split(' ').filter(c => {
+                return !c.startsWith('bg-') && !c.startsWith('from-') && !c.startsWith('via-') && !c.startsWith('to-');
+            });
+            
+            if (type === "none") {
+                targetEl.className = classes.join(' ');
+            } else if (type === "color") {
+                const customClasses = document.getElementById('bg-classes-input').value.trim();
+                targetEl.className = `${classes.join(' ')} ${customClasses}`;
+            } else if (type === "image") {
+                const imgUrl = document.getElementById('bg-image-url-input').value.trim();
+                const opacity = document.getElementById('bg-image-opacity-input').value;
+                if (imgUrl) {
+                    targetEl.style.backgroundImage = `linear-gradient(rgba(15, 23, 42, ${opacity}), rgba(15, 23, 42, ${opacity})), url('${imgUrl}')`;
+                    targetEl.style.backgroundSize = "cover";
+                    targetEl.style.backgroundPosition = "center";
+                    targetEl.className = `${classes.join(' ')} bg-cover bg-center text-white`;
+
+                    // Jika ada imej upload di-queue, masukkan ke senarai batch upload utama
+                    if (memoryStore.uploaded_backgrounds[sectionId] && memoryStore.uploaded_backgrounds[sectionId].path === imgUrl) {
+                        memoryStore.pending_uploads.push(memoryStore.uploaded_backgrounds[sectionId]);
+                        delete memoryStore.uploaded_backgrounds[sectionId];
+                    }
+                }
+            }
+            
+            closeBgSettings();
+        };
+
+        // -----------------------------------------------------------------
+        // 3. TAMBAH ELEMEN BARU DI BAGIAN STATIK (NILAM, TVPSS, PROGRAM)
+        // -----------------------------------------------------------------
+        document.getElementById('btn-add-nilam').addEventListener('click', () => {
+            const nilamGrid = document.getElementById('nilam-grid');
+            const randomIcons = ["fa-star", "fa-heart", "fa-bookmark", "fa-lightbulb", "fa-graduation-cap"];
+            const chosenIcon = randomIcons[Math.floor(Math.random() * randomIcons.length)];
+            
+            const newCardHtml = `
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item animate-pulse">
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-6 text-xl"><i class="fas ${chosenIcon}"></i></div>
+                    <h3 contenteditable="true" class="font-bold text-xl mb-3">Tajuk Aktiviti NILAM</h3>
+                    <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Tuliskan keterangan mengenai program atau kaedah amalan NILAM baru di sini.</p>
+                </div>
+            `;
+            nilamGrid.insertAdjacentHTML('beforeend', newCardHtml);
+            setTimeout(() => {
+                nilamGrid.lastElementChild.classList.remove('animate-pulse');
+            }, 1000);
+        });
+
+        document.getElementById('btn-add-tvpss').addEventListener('click', () => {
+            const tvpssContainer = document.getElementById('tvpss-container');
+            const newTvpssHtml = `
+                <div class="bg-white p-4 rounded-3xl shadow-md border border-purple-100 relative group card-item animate-pulse">
+                    <button class="admin-only admin-delete-btn absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner relative flex items-center justify-center">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="TvPSS Video Player" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="p-6">
+                        <span contenteditable="true" class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wide inline-flex items-center"><i class="fas fa-circle text-[8px] mr-1.5 animate-pulse"></i> Siaran Baru</span>
+                        <h3 contenteditable="true" class="font-bold text-xl text-slate-900 mt-3">Tajuk Laporan Khas TVPSS</h3>
+                        <p contenteditable="true" class="text-slate-500 text-sm mt-1">Diterbitkan oleh Krew TVPSS</p>
+                        
+                        <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-purple-200 admin-only">
+                            <label class="block text-[10px] font-bold text-purple-700 uppercase mb-1">Pautan Embed YouTube:</label>
+                            <input type="text" value="https://www.youtube.com/embed/dQw4w9WgXcQ" class="w-full border text-xs p-2 rounded focus:ring-1 focus:ring-purple-500 outline-none" oninput="updateYoutubeIframe(this)">
+                        </div>
+                    </div>
+                </div>
+            `;
+            tvpssContainer.insertAdjacentHTML('beforeend', newTvpssHtml);
+            setTimeout(() => {
+                tvpssContainer.lastElementChild.classList.remove('animate-pulse');
+            }, 1000);
+        });
+
+        window.updateYoutubeIframe = function(inputElement) {
+            let val = inputElement.value.trim();
+            if(val.includes("watch?v=")) {
+                const vidId = val.split("v=")[1].split("&")[0];
+                val = `https://www.youtube.com/embed/${vidId}`;
+                inputElement.value = val;
+            } else if(val.includes("youtu.be/")) {
+                const vidId = val.split("youtu.be/")[1].split("?")[0];
+                val = `https://www.youtube.com/embed/${vidId}`;
+                inputElement.value = val;
+            }
+            
+            const iframe = inputElement.closest('.card-item').querySelector('iframe');
+            if(iframe) {
+                iframe.src = val;
+            }
+        };
+
+        document.getElementById('btn-add-program').addEventListener('click', () => {
+            const programContainer = document.getElementById('program-list-container');
+            const newProgramHtml = `
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group card-item animate-pulse">
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <div>
+                        <span contenteditable="true" class="text-xs font-bold text-purple-300 uppercase tracking-widest block mb-1">Bulan 2026</span>
+                        <h3 contenteditable="true" class="font-bold text-lg text-white">Nama Program Baru PSS</h3>
+                        <p contenteditable="true" class="text-purple-200/70 text-sm mt-1">Sila tulis penerangan ringkas mengenai pengisian program baru di sini.</p>
+                    </div>
+                    <span contenteditable="true" class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full font-medium self-start sm:self-center">Akan Datang</span>
+                </div>
+            `;
+            programContainer.insertAdjacentHTML('beforeend', newProgramHtml);
+            setTimeout(() => {
+                programContainer.lastElementChild.classList.remove('animate-pulse');
+            }, 1000);
+        });
+
+        // -----------------------------------------------------------------
+        // 4. LOAD & SYNCHRONIZE DATA DYNAMIC SEDIA ADA (RAK BUKU & PENGAWAS)
         // -----------------------------------------------------------------
         function parseFrontmatter(text) {
             const obj = { body: "" };
@@ -274,7 +743,7 @@
                         const fileRes = await fetch(file.download_url);
                         const fileText = await fileRes.text();
                         const parsedData = parseFrontmatter(fileText);
-                        parsedData._filename = file.name; // Simpan rujukan fail asal
+                        parsedData._filename = file.name;
                         parsedData._sha = file.sha;
                         
                         memoryStore[storageKey].push(parsedData);
@@ -287,7 +756,6 @@
             }
         }
 
-        // Render Functions (Mengekalkan sebiji style kad visual asal)
         function renderBuku(data, container, index) {
             let bgIcon = "bg-purple-200 text-purple-400"; const kat = (data.kategori || "FIKSYEN").toUpperCase();
             if (kat === "SAINS") bgIcon = "bg-indigo-200 text-indigo-400";
@@ -296,8 +764,8 @@
 
             const visual = data.cover ? `<img src="${data.cover}" class="w-full h-full object-cover">` : `<i class="fas fa-book-open text-5xl"></i>`;
             const html = `
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-purple-100 p-2 relative group" data-index="${index}">
-                    <button onclick="removeItem('rak_buku', ${index})" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs z-10 hover:bg-red-700 transition"><i class="fas fa-trash"></i></button>
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-purple-100 p-2 relative group card-item" data-index="${index}">
+                    <button onclick="removeItem('rak_buku', ${index})" class="admin-only absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs z-10 hover:bg-red-700 transition"><i class="fas fa-trash"></i></button>
                     <div class="h-40 ${bgIcon} relative flex items-center justify-center overflow-hidden rounded-lg">${visual}</div>
                     <div class="p-2">
                         <h4 class="font-bold text-xs text-slate-900 line-clamp-1">${data.title}</h4>
@@ -310,8 +778,8 @@
         function renderPengawas(data, container, index) {
             const visual = data.gambar ? `<img src="${data.gambar}" class="w-full h-full object-cover">` : `<i class="fas fa-user-tie text-4xl"></i>`;
             const html = `
-                <div class="bg-white rounded-2xl border border-purple-100 p-4 text-center relative group" data-index="${index}">
-                    <button onclick="removeItem('pengawas', ${index})" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs z-10 hover:bg-red-700 transition"><i class="fas fa-trash"></i></button>
+                <div class="bg-white rounded-2xl border border-purple-100 p-4 text-center relative group card-item" data-index="${index}">
+                    <button onclick="removeItem('pengawas', ${index})" class="admin-only absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs z-10 hover:bg-red-700 transition"><i class="fas fa-trash"></i></button>
                     <div class="w-20 h-20 mx-auto rounded-full bg-purple-100 mb-2 flex items-center justify-center text-purple-400 overflow-hidden border-2 border-purple-50">${visual}</div>
                     <h4 class="font-bold text-sm text-slate-900 line-clamp-1">${data.title}</h4>
                     <p class="text-[10px] font-semibold text-purple-600 uppercase">${data.jawatan}</p>
@@ -319,12 +787,12 @@
             container.insertAdjacentHTML('beforeend', html);
         }
 
-        function removeItem(type, index) {
+        window.removeItem = function(type, index) {
             if(confirm("Padam item ini daripada senarai sesi?")) {
                 memoryStore[type].splice(index, 1);
                 refreshContainers();
             }
-        }
+        };
 
         function refreshContainers() {
             const rContainer = document.getElementById('rak-buku-container');
@@ -336,17 +804,30 @@
             memoryStore.pengawas.forEach((d, i) => renderPengawas(d, pContainer, i));
         }
 
-        // -----------------------------------------------------------------
-        // INTERFACE TAMBAH DATA (MODAL POPUP BERDASARKAN CONFIG.YML FIELDS)
-        // -----------------------------------------------------------------
+        // TAMBAH DATA CMS (MODAL LOGIC + UPLOAD INPUT)
         document.getElementById('btn-add-buku').addEventListener('click', () => {
             currentType = "rak_buku";
-            modalTitle.innerText = "Tambah Fail Kad Maya (config.yml structure)";
+            window.lastUploadedFormImage = null;
+            modalTitle.innerText = "Tambah Fail E-Book";
             formFields.innerHTML = `
                 <div><label class="block text-xs font-bold mb-1">Tajuk Buku</label><input type="text" name="title" required class="w-full border p-2 text-sm rounded-lg"></div>
                 <div><label class="block text-xs font-bold mb-1">Penulis</label><input type="text" name="penulis" required class="w-full border p-2 text-sm rounded-lg"></div>
                 <div><label class="block text-xs font-bold mb-1">Kategori</label><select name="kategori" class="w-full border p-2 text-sm rounded-lg"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select></div>
-                <div><label class="block text-xs font-bold mb-1">Pautan Kulit Buku (URL Gambar / Path)</label><input type="text" name="cover" class="w-full border p-2 text-sm rounded-lg" placeholder="assets/images/buku1.jpg"></div>
+                
+                <div class="border p-3 rounded-lg bg-slate-50 space-y-2">
+                    <label class="block text-xs font-bold">Imej Kulit Buku</label>
+                    <div class="flex items-center space-x-3">
+                        <img id="form-image-preview" src="https://placehold.co/80x100?text=Kulit" class="h-20 w-16 object-cover border bg-white rounded">
+                        <label class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold px-3 py-1.5 rounded cursor-pointer transition">
+                            <i class="fas fa-upload mr-1"></i> Muat Naik Gambar
+                            <input type="file" accept="image/*" class="hidden" onchange="processImageFile(this, 'form-image')">
+                        </label>
+                    </div>
+                    <input type="hidden" name="cover" id="form-image-hidden-path">
+                    <p class="text-[9px] text-slate-400">Atau letak URL pautan imej di bawah:</p>
+                    <input type="text" placeholder="https://..." oninput="document.getElementById('form-image-preview').src = this.value; document.getElementById('form-image-hidden-path').value = this.value" class="w-full border p-1.5 text-xs rounded">
+                </div>
+
                 <div><label class="block text-xs font-bold mb-1">Pautan E-Book (URL)</label><input type="text" name="link" required class="w-full border p-2 text-sm rounded-lg" value="#"></div>
             `;
             modal.classList.remove('hidden');
@@ -354,11 +835,25 @@
 
         document.getElementById('btn-add-pengawas').addEventListener('click', () => {
             currentType = "pengawas";
-            modalTitle.innerText = "Tambah Pengawas Baru (config.yml structure)";
+            window.lastUploadedFormImage = null;
+            modalTitle.innerText = "Tambah Pengawas Baru";
             formFields.innerHTML = `
                 <div><label class="block text-xs font-bold mb-1">Nama Penuh</label><input type="text" name="title" required class="w-full border p-2 text-sm rounded-lg"></div>
-                <div><label class="block text-xs font-bold mb-1">Jawatan</label><input type="text" name="jawatan" required class="w-full border p-2 text-sm rounded-lg" placeholder="Pengawas PSS"></div>
-                <div><label class="block text-xs font-bold mb-1">Pautan Gambar (URL / Path)</label><input type="text" name="gambar" class="w-full border p-2 text-sm rounded-lg" placeholder="assets/images/pengawas1.jpg"></div>
+                <div><label class="block text-xs font-bold mb-1">Jawatan</label><input type="text" name="jawatan" required class="w-full border p-2 text-sm rounded-lg" value="Pengawas PSS"></div>
+                
+                <div class="border p-3 rounded-lg bg-slate-50 space-y-2">
+                    <label class="block text-xs font-bold">Foto Pengawas</label>
+                    <div class="flex items-center space-x-3">
+                        <img id="form-image-preview" src="https://placehold.co/100x100?text=Foto" class="h-16 w-16 object-cover border bg-white rounded-full">
+                        <label class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold px-3 py-1.5 rounded cursor-pointer transition">
+                            <i class="fas fa-upload mr-1"></i> Muat Naik Foto
+                            <input type="file" accept="image/*" class="hidden" onchange="processImageFile(this, 'form-image')">
+                        </label>
+                    </div>
+                    <input type="hidden" name="gambar" id="form-image-hidden-path">
+                    <p class="text-[9px] text-slate-400">Atau letak URL pautan imej di bawah:</p>
+                    <input type="text" placeholder="https://..." oninput="document.getElementById('form-image-preview').src = this.value; document.getElementById('form-image-hidden-path').value = this.value" class="w-full border p-1.5 text-xs rounded">
+                </div>
             `;
             modal.classList.remove('hidden');
         });
@@ -371,7 +866,11 @@
             const newItem = {};
             formData.forEach((val, key) => newItem[key] = val);
             
-            // Generate standard dynamic safe filename slug
+            // Queue imej jika imej form dikesan telah diupload
+            if (window.lastUploadedFormImage && newItem[currentType === 'rak_buku' ? 'cover' : 'gambar'] === window.lastUploadedFormImage.path) {
+                memoryStore.pending_uploads.push(window.lastUploadedFormImage);
+            }
+
             const slug = newItem.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000);
             newItem._filename = `${slug}.md`;
             
@@ -381,68 +880,93 @@
         });
 
         // -----------------------------------------------------------------
-        // LOGIK PENGUMPULAN DATA SELEPAS HABIS EDIT (BULK SAVE ALL TO GITHUB)
+        // 5. PENYIMPANAN MAKLUMAT (PUBLISH ALL IN ONE SINGLE PAYLOAD BATCH)
         // -----------------------------------------------------------------
         document.getElementById('btn-save-all').addEventListener('click', async () => {
             const btn = document.getElementById('btn-save-all');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Sedang Menyimpan Kesemuanya...</span>`;
-
-            // 1. Ekstrak teks statik html yang telah diubah suai oleh admin
-            const textElements = document.querySelectorAll('[contenteditable="true"]');
-            textElements.forEach(el => {
-                if(el.id) {
-                    memoryStore.text_changes[el.id] = el.innerText.trim();
-                }
-            });
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Menyimpan Kesemuanya...</span>`;
 
             try {
-                // Bahagian A: Kemas kini fail index.html utama dengan nilai teks tulisan baru
+                // Ambil string HTML penuh dari server GitHub
                 const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html`;
                 const getIndexRes = await fetch(indexUrl);
-                if(!getIndexRes.ok) throw new Error("Gagal dapatkan fail index.html asal dari GitHub.");
+                if(!getIndexRes.ok) throw new Error("Tidak dapat membaca fail index.html utama.");
                 const indexData = await getIndexRes.json();
-                let decodedHtml = decodeURIComponent(escape(atob(indexData.content)));
+                
+                // Cipta virtual DOM parser untuk kita lakukan pembersihan visual
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
 
-                // Proses gantikan teks lama ke teks baru berasaskan ID elemen
-                Object.keys(memoryStore.text_changes).forEach(id => {
-                    const regex = new RegExp(`id="${id}"([^>]*?)>([^<]*?)<`, 'g');
-                    decodedHtml = decodedHtml.replace(regex, `id="${id}"$1>${memoryStore.text_changes[id]}<`);
-                });
+                // --- PEMBERSIHAN KOD DARI ELEMEN ADMIN (SANGAT PENTING!) ---
+                
+                const adminBar = doc.getElementById('admin-bar');
+                if (adminBar) adminBar.remove();
+                
+                const modalCms = doc.getElementById('modal-form');
+                if (modalCms) modalCms.remove();
+                
+                const modalBg = doc.getElementById('modal-bg-settings');
+                if (modalBg) modalBg.remove();
 
-                // Hantar update fail index.html ke github
-                await pushToGitHub('index.html', decodedHtml, indexData.sha, "Admin Visual Update: Teks Halaman Utama");
+                const modalLogo = doc.getElementById('modal-logo');
+                if (modalLogo) modalLogo.remove();
 
-                // Bahagian B: Simpan Markdown items untuk koleksi dynamic (Rak Buku & Pengawas)
-                // Nota: Untuk fungsi batching yang lancar, kita hantar pergerakan data berasingan secara berturutan
+                doc.querySelectorAll('.admin-only').forEach(el => el.remove());
+                doc.querySelectorAll('[contenteditable="true"]').forEach(el => el.removeAttribute('contenteditable'));
+
+                // Reset semula container dynamic ke status asalnya untuk membolehkan fetch CMS berjalan
+                const rContainer = doc.getElementById('rak-buku-container');
+                if (rContainer) rContainer.innerHTML = `<p class="text-center text-sm text-purple-600 col-span-full animate-pulse py-8"><i class="fas fa-spinner fa-spin mr-2"></i>Memuatkan rak buku maya...</p>`;
+                
+                const pContainer = doc.getElementById('pengawas-container');
+                if (pContainer) pContainer.innerHTML = `<p class="text-center text-sm text-purple-600 col-span-full animate-pulse py-8"><i class="fas fa-spinner fa-spin mr-2"></i>Memuatkan senarai lembaga pengawas...</p>`;
+
+                const cleanedHtmlString = doc.documentElement.outerHTML;
+
+                // --- PROSES UPLOAD FAIL BATCH KE GITHUB ---
+
+                // 1. Muat naik semua imej yang baru ditolak ke pending_uploads
+                for(let fileObj of memoryStore.pending_uploads) {
+                    await pushToGitHub(fileObj.path, fileObj.content, null, "Pemuatnaik Imej CMS: " + fileObj.path, true);
+                }
+
+                // 2. Simpan fail index.html utama bersih
+                await pushToGitHub('index.html', cleanedHtmlString, indexData.sha, "Visual Live Builder Update: Semua Bahagian & Reka Letak");
+
+                // 3. Simpan Markdown items yang baru ditambah untuk Buku & Pengawas
                 for(let item of memoryStore.rak_buku) {
                     const mdContent = `---\ntitle: "${item.title}"\njawatan: ""\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover || ''}"\nlink: "${item.link || '#'}"\n---`;
-                    await pushToGitHub(`data/rak_buku/${item._filename}`, mdContent, item._sha || null, `Kemaskini Buku: ${item.title}`);
+                    await pushToGitHub(`data/rak_buku/${item._filename}`, mdContent, item._sha || null, `Kemas kini Buku: ${item.title}`);
                 }
 
                 for(let item of memoryStore.pengawas) {
                     const mdContent = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar || ''}"\n---`;
-                    await pushToGitHub(`data/pengawas/${item._filename}`, mdContent, item._sha || null, `Kemaskini Pengawas: ${item.title}`);
+                    await pushToGitHub(`data/pengawas/${item._filename}`, mdContent, item._sha || null, `Kemas kini Pengawas: ${item.title}`);
                 }
 
-                alert("🎉 Hebat Nana! Semua perubahan teks statik & data penambahan baru telah berjaya dihantar sekali gus ke repositori GitHub!");
+                alert("🎉 Alhamdulillah Nana! Kesemua fail gambar baru telah berjaya dimuat naik, dan seluruh kemas kini visual website anda telah diterbitkan secara serentak ke dalam GitHub!");
                 window.location.reload();
 
             } catch (err) {
                 console.error(err);
-                alert("Ralat semasa melakukan batch commit: " + err.message);
+                alert("Ralat semasa melakukan bulk publish: " + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>`;
             }
         });
 
-        // Helper function pushing direct payload string to github contents endpoint
-        async function pushToGitHub(path, content, sha = null, commitMsg = "Kemasukan data CMS") {
+        // Helper GitHub PUT Push (Sokong data teks UTF-8 & data binari Base64)
+        async function pushToGitHub(path, content, sha = null, commitMsg = "Kemasukan data Visual Web Builder", isBinary = false) {
             const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+            
+            // Format content bergantung kepada jenis data
+            const finalContent = isBinary ? content : btoa(unescape(encodeURIComponent(content)));
+            
             const bodyData = {
                 message: commitMsg,
-                content: btoa(unescape(encodeURIComponent(content)))
+                content: finalContent
             };
             if (sha) bodyData.sha = sha;
 
@@ -457,11 +981,41 @@
             return res.json();
         }
 
-        // Trigger loading synchronization on boot
+        // Jalankan fetch sync pada permulaan halaman
         document.addEventListener("DOMContentLoaded", () => {
             initFetchData('data/rak_buku', 'rak_buku', renderBuku, 'rak-buku-container');
             initFetchData('data/pengawas', 'pengawas', renderPengawas, 'pengawas-container');
         });
     </script>
+
+    <!-- PUBLIC CLIENT-SIDE CODE (Dikekalkan untuk runtime pengguna awam) -->
+    <script id="public-script">
+        const navToggle = document.getElementById('nav-toggle');
+        const navContent = document.getElementById('nav-content');
+
+        if (navToggle && navContent) {
+            navToggle.addEventListener('click', () => {
+                navContent.classList.toggle('hidden');
+            });
+            
+            const navLinks = navContent.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if(!navContent.classList.contains('hidden')) {
+                        navContent.classList.add('hidden');
+                    }
+                });
+            });
+        }
+    </script>
 </body>
 </html>
+```
+eof
+
+### Rumusan Keupayaan Baharu:
+* **Uploader Pintar:** Butang **"Muat Naik Fail"** kini disepadukan dengan lancar dalam modal Background, Tukar Logo, Borang Buku, dan Borang Pengawas.
+* **Instant Local Preview:** Pengguna dapat melihat hasil preview gambar (Base64) dengan serta-merta tanpa perlu menunggu fail dimuat naik ke GitHub dahulu.
+* **One-Click Bulk Publishing:** Apabila butang hijau ditekan, fail-fail imej binari ini akan dihantar terlebih dahulu ke folder `assets/images/` di GitHub Nana, diikuti dengan fail `index.html` dan data markdown yang sepadan.
+
+Sila simpan kod ini di dalam fail `admin/index.html` Nana. Nana kini boleh menguji fungsi muat naik fail gambar dengan selesa dari peranti Nana! 😊
