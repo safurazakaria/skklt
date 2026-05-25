@@ -1,5 +1,5 @@
 ---
 title: hannan
 jawatan: pengawas
-gambar: /assets/images/hannan.png
+gambar: assets/images/hannan.png
 ---
