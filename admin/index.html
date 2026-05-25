@@ -308,7 +308,7 @@
         async function ambilDataPelayanCms(folderPath, storeKey, renderFn, containerId) {
             const container = document.getElementById(containerId);
             try {
-                const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}`);
+                const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`);
                 if(!res.ok) return;
                 const files = await res.json();
                 container.innerHTML = '';
