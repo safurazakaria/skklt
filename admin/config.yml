@@ -1,9 +1,9 @@
 backend:
   name: github
-  repo: username_github_anda/nama_repositori_anda # GANTI INI DENGAN REPO ANDA
-  branch: main # Branch utama untuk simpan data
+  repo: safurazakaria/skklt
+  branch: main
 
-media_folder: "assets/images" # Folder tempat gambar admin muat naik akan disimpan
+media_folder: "assets/images"
 public_folder: "/assets/images"
 
 collections:
