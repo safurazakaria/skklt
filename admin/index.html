@@ -6,6 +6,10 @@
     <title>Visual Web Builder Admin - PSS Skylert 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts untuk pilihan reka bentuk tulisan premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Caveat:wght@400..700&family=Inter:wght@300;400;600;800&family=Montserrat:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;900&family=Pacifico&family=Teko:wght@500&display=swap" rel="stylesheet">
+
     <style>
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f3e8ff; }
@@ -29,19 +33,81 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans leading-normal tracking-normal pt-16">
+<body class="bg-slate-50 text-slate-800 font-sans leading-normal tracking-normal pt-28">
 
     <!-- BAR PENTADBIR UTAMA (Sticky Top) -->
     <div id="admin-bar" class="fixed top-0 left-0 right-0 bg-slate-950 text-white z-50 px-6 py-3 flex flex-wrap justify-between items-center shadow-md border-b border-purple-900/40">
         <div class="flex items-center space-x-3">
             <span class="bg-purple-600 text-xs uppercase px-2 py-1 rounded font-bold animate-pulse">Visual Builder Mode</span>
-            <p class="text-xs text-slate-300 hidden lg:block">Klik teks untuk edit, klik logo untuk tukar imej, guna panel kanan untuk tukar background & tambah elemen.</p>
+            <p class="text-xs text-slate-300 hidden lg:block">Klik mana-mana teks untuk menukar gaya (warna, saiz, font), ubah gambar background & publish semua perubahan sekali gus.</p>
         </div>
         <div class="flex items-center space-x-3">
             <button id="btn-save-all" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-emerald-950/50">
                 <i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>
             </button>
         </div>
+    </div>
+
+    <!-- SUPER FLOATING TEXT STYLING BAR (Slaid ke bawah bila teks difokus) -->
+    <div id="text-style-bar" class="fixed top-14 left-0 right-0 bg-white border-b border-purple-100 shadow-md z-40 px-6 py-2 flex-wrap items-center gap-4 text-xs font-medium text-slate-700 justify-between hidden transition-all duration-300 animate-in slide-in-from-top-4">
+        <div class="flex flex-wrap items-center gap-3">
+            <span class="text-purple-700 font-bold uppercase tracking-wider text-[10px] bg-purple-50 px-2 py-1 rounded"><i class="fas fa-font"></i> Gaya Teks</span>
+            
+            <!-- Font Family -->
+            <div class="flex items-center space-x-1">
+                <label class="text-[10px] text-slate-400 font-bold uppercase">Font:</label>
+                <select id="style-font" class="border p-1.5 rounded focus:ring-1 focus:ring-purple-500 outline-none font-sans text-xs bg-slate-50 cursor-pointer">
+                    <option value="'Poppins', sans-serif">Poppins (Modern/Sans)</option>
+                    <option value="'Inter', sans-serif">Inter (Clean/Minimal)</option>
+                    <option value="'Montserrat', sans-serif">Montserrat (Bold/Trendy)</option>
+                    <option value="'Playfair Display', serif">Playfair Display (Serif Elegan)</option>
+                    <option value="'Caveat', cursive">Caveat (Tulisan Tangan)</option>
+                    <option value="'Pacifico', cursive">Pacifico (Klasik Retro)</option>
+                    <option value="'Teko', sans-serif">Teko (Sukan/Tajuk Besar)</option>
+                    <option value="'Bricolage Grotesque', sans-serif">Bricolage (Kreatif/Unik)</option>
+                </select>
+            </div>
+
+            <!-- Font Size -->
+            <div class="flex items-center space-x-1">
+                <label class="text-[10px] text-slate-400 font-bold uppercase">Saiz:</label>
+                <input type="range" id="style-size" min="12" max="100" value="16" class="w-24 accent-purple-600 cursor-pointer">
+                <span id="style-size-val" class="w-8 text-center text-[10px] font-bold text-purple-600">16px</span>
+            </div>
+
+            <!-- Text Color -->
+            <div class="flex items-center space-x-1.5 border-l pl-3 border-slate-200">
+                <label class="text-[10px] text-slate-400 font-bold uppercase">Warna:</label>
+                <input type="color" id="style-color" class="w-6 h-6 border-0 rounded cursor-pointer p-0 bg-transparent">
+                <!-- Palet Segera -->
+                <div class="flex space-x-1">
+                    <button onclick="setQuickColor('#ffffff')" class="w-4 h-4 rounded-full border border-slate-300 bg-white" title="Putih"></button>
+                    <button onclick="setQuickColor('#0f172a')" class="w-4 h-4 rounded-full bg-slate-900" title="Gelap"></button>
+                    <button onclick="setQuickColor('#a855f7')" class="w-4 h-4 rounded-full bg-purple-500" title="Ungu"></button>
+                    <button onclick="setQuickColor('#3b82f6')" class="w-4 h-4 rounded-full bg-blue-500" title="Biru"></button>
+                    <button onclick="setQuickColor('#10b981')" class="w-4 h-4 rounded-full bg-emerald-500" title="Hijau"></button>
+                    <button onclick="setQuickColor('#f59e0b')" class="w-4 h-4 rounded-full bg-amber-500" title="Amber"></button>
+                </div>
+            </div>
+
+            <!-- Alignment -->
+            <div class="flex items-center space-x-1 border-l pl-3 border-slate-200 text-sm">
+                <button id="style-align-left" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Kiri"><i class="fas fa-align-left"></i></button>
+                <button id="style-align-center" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Tengah"><i class="fas fa-align-center"></i></button>
+                <button id="style-align-right" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Kanan"><i class="fas fa-align-right"></i></button>
+            </div>
+
+            <!-- Formatting -->
+            <div class="flex items-center space-x-1 border-l pl-3 border-slate-200 text-sm">
+                <button id="style-bold" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Tebal"><i class="fas fa-bold"></i></button>
+                <button id="style-italic" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Condong"><i class="fas fa-italic"></i></button>
+                <button id="style-underline" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Garis Bawah"><i class="fas fa-underline"></i></button>
+            </div>
+        </div>
+        
+        <button id="btn-reset-text" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase transition flex items-center space-x-1">
+            <i class="fas fa-undo"></i> <span>Reset Gaya</span>
+        </button>
     </div>
 
     <!-- NAVIGATION (Boleh Diedit Nama PSS) -->
@@ -296,7 +362,7 @@
         <div class="container mx-auto px-6 relative z-10">
             <div class="text-center max-w-3xl mx-auto mb-10">
                 <h2 id="txt-program-title" contenteditable="true" class="text-3xl font-extrabold tracking-tight">Program PSS Sepanjang 2026</h2>
-                <p id="txt-program-desc" contenteditable="true" class="text-purple-200/80 mt-2">Kalendar aktiviti, kempen, dan pengisian menarik yang dirancang khas untuk anda.</p>
+                <p id="txt-program-desc" contenteditable="true" class="text-purple-200/80 mt-2">Kalendar aktiviti, kempen, and pengisian menarik yang dirancang khas untuk anda.</p>
                 <div class="w-16 h-1 bg-white/40 mx-auto mt-4 rounded-full"></div>
             </div>
 
@@ -460,10 +526,133 @@
         const formFields = document.getElementById('form-fields');
         let currentType = ""; 
 
+        // Rujukan elemen aktif untuk diubah gaya teks
+        let activeEditableElement = null;
+
         // Nav Toggle
         document.getElementById('nav-toggle').addEventListener('click', () => {
             document.getElementById('nav-content').classList.toggle('hidden');
         });
+
+        // -----------------------------------------------------------------
+        // KAWALAN DAN LOGIK PENYUNTINGAN GAYA TEKS (INLINE TEXT EDITOR)
+        // -----------------------------------------------------------------
+        const styleBar = document.getElementById('text-style-bar');
+        const styleFont = document.getElementById('style-font');
+        const styleSize = document.getElementById('style-size');
+        const styleSizeVal = document.getElementById('style-size-val');
+        const styleColor = document.getElementById('style-color');
+
+        // Memaparkan dan menyembunyikan Text Style Bar apabila input diedit
+        document.addEventListener('focusin', (e) => {
+            if (e.target.hasAttribute('contenteditable')) {
+                activeEditableElement = e.target;
+                
+                // Baca tetapan gaya teks semasa elemen difokuskan
+                const computedStyle = window.getComputedStyle(activeEditableElement);
+                
+                // Kemas kini paparan nilai pada Style Bar
+                styleFont.value = activeEditableElement.style.fontFamily || computedStyle.fontFamily;
+                
+                let currentSize = parseInt(activeEditableElement.style.fontSize || computedStyle.fontSize);
+                styleSize.value = currentSize;
+                styleSizeVal.innerText = currentSize + "px";
+                
+                // Tukar format warna kepada HEX untuk di-bind pada Color Picker
+                styleColor.value = rgbToHex(computedStyle.color);
+
+                styleBar.classList.remove('hidden');
+                styleBar.classList.add('flex');
+            }
+        });
+
+        // Tutup Text Styling Bar jika klik di luar kawasan contenteditable & bar gaya
+        document.addEventListener('click', (e) => {
+            if (!e.target.hasAttribute('contenteditable') && !styleBar.contains(e.target) && !e.target.closest('.admin-only') && !e.target.closest('button')) {
+                styleBar.classList.add('hidden');
+                styleBar.classList.remove('flex');
+                activeEditableElement = null;
+            }
+        });
+
+        // Event listener penukaran gaya secara langsung (real-time listeners)
+        styleFont.addEventListener('change', () => {
+            if (activeEditableElement) {
+                activeEditableElement.style.fontFamily = styleFont.value;
+            }
+        });
+
+        styleSize.addEventListener('input', () => {
+            if (activeEditableElement) {
+                activeEditableElement.style.fontSize = styleSize.value + "px";
+                styleSizeVal.innerText = styleSize.value + "px";
+            }
+        });
+
+        styleColor.addEventListener('input', () => {
+            if (activeEditableElement) {
+                activeEditableElement.style.color = styleColor.value;
+            }
+        });
+
+        window.setQuickColor = function(colorHex) {
+            if (activeEditableElement) {
+                activeEditableElement.style.color = colorHex;
+                styleColor.value = colorHex;
+            }
+        };
+
+        // Alignments
+        document.getElementById('style-align-left').addEventListener('click', () => {
+            if (activeEditableElement) activeEditableElement.style.textAlign = 'left';
+        });
+        document.getElementById('style-align-center').addEventListener('click', () => {
+            if (activeEditableElement) activeEditableElement.style.textAlign = 'center';
+        });
+        document.getElementById('style-align-right').addEventListener('click', () => {
+            if (activeEditableElement) activeEditableElement.style.textAlign = 'right';
+        });
+
+        // Bold, Italic, Underline Toggles
+        document.getElementById('style-bold').addEventListener('click', () => {
+            if (activeEditableElement) {
+                const isBold = activeEditableElement.style.fontWeight === 'bold';
+                activeEditableElement.style.fontWeight = isBold ? 'normal' : 'bold';
+            }
+        });
+        document.getElementById('style-italic').addEventListener('click', () => {
+            if (activeEditableElement) {
+                const isItalic = activeEditableElement.style.fontStyle === 'italic';
+                activeEditableElement.style.fontStyle = isItalic ? 'normal' : 'italic';
+            }
+        });
+        document.getElementById('style-underline').addEventListener('click', () => {
+            if (activeEditableElement) {
+                const isUnderline = activeEditableElement.style.textDecoration === 'underline';
+                activeEditableElement.style.textDecoration = isUnderline ? 'none' : 'underline';
+            }
+        });
+
+        // Reset gaya semula ke tetapan asal website
+        document.getElementById('btn-reset-text').addEventListener('click', () => {
+            if (activeEditableElement) {
+                activeEditableElement.style.fontFamily = '';
+                activeEditableElement.style.fontSize = '';
+                activeEditableElement.style.color = '';
+                activeEditableElement.style.textAlign = '';
+                activeEditableElement.style.fontWeight = '';
+                activeEditableElement.style.fontStyle = '';
+                activeEditableElement.style.textDecoration = '';
+                alert("Gaya teks berjaya di-reset ke default!");
+            }
+        });
+
+        // Helper: Convert RGB string to HEX
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g);
+            if (!result || result.length < 3) return "#000000";
+            return "#" + ((1 << 24) + (parseInt(result[0]) << 16) + (parseInt(result[1]) << 8) + parseInt(result[2])).toString(16).slice(1);
+        }
 
         // -----------------------------------------------------------------
         // REUSABLE HELPER: MEMPROSES SEBARANG MUAT NAIK GAMBAR KE BASE64
@@ -634,7 +823,7 @@
             
             const newCardHtml = `
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item animate-pulse">
-                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100 lg:opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-6 text-xl"><i class="fas ${chosenIcon}"></i></div>
                     <h3 contenteditable="true" class="font-bold text-xl mb-3">Tajuk Aktiviti NILAM</h3>
                     <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Tuliskan keterangan mengenai program atau kaedah amalan NILAM baru di sini.</p>
@@ -650,7 +839,7 @@
             const tvpssContainer = document.getElementById('tvpss-container');
             const newTvpssHtml = `
                 <div class="bg-white p-4 rounded-3xl shadow-md border border-purple-100 relative group card-item animate-pulse">
-                    <button class="admin-only admin-delete-btn absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <button class="admin-only admin-delete-btn absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100 lg:opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner relative flex items-center justify-center">
                         <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="TvPSS Video Player" frameborder="0" allowfullscreen></iframe>
                     </div>
@@ -694,7 +883,7 @@
             const programContainer = document.getElementById('program-list-container');
             const newProgramHtml = `
                 <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group card-item animate-pulse">
-                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100 lg:opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     <div>
                         <span contenteditable="true" class="text-xs font-bold text-purple-300 uppercase tracking-widest block mb-1">Bulan 2026</span>
                         <h3 contenteditable="true" class="font-bold text-lg text-white">Nama Program Baru PSS</h3>
@@ -902,6 +1091,9 @@
                 
                 const adminBar = doc.getElementById('admin-bar');
                 if (adminBar) adminBar.remove();
+
+                const textStyleBar = doc.getElementById('text-style-bar');
+                if (textStyleBar) textStyleBar.remove();
                 
                 const modalCms = doc.getElementById('modal-form');
                 if (modalCms) modalCms.remove();
@@ -914,6 +1106,12 @@
 
                 doc.querySelectorAll('.admin-only').forEach(el => el.remove());
                 doc.querySelectorAll('[contenteditable="true"]').forEach(el => el.removeAttribute('contenteditable'));
+
+                // Pastikan library Google Fonts yang diletakkan pada admin turut disuntik ke dalam header index.html awam
+                const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Caveat:wght@400..700&family=Inter:wght@300;400;600;800&family=Montserrat:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;900&family=Pacifico&family=Teko:wght@500&display=swap" rel="stylesheet">`;
+                if (!doc.head.innerHTML.includes('fonts.googleapis.com')) {
+                    doc.head.insertAdjacentHTML('beforeend', fontLink);
+                }
 
                 // Reset semula container dynamic ke status asalnya untuk membolehkan fetch CMS berjalan
                 const rContainer = doc.getElementById('rak-buku-container');
@@ -945,7 +1143,7 @@
                     await pushToGitHub(`data/pengawas/${item._filename}`, mdContent, item._sha || null, `Kemas kini Pengawas: ${item.title}`);
                 }
 
-                alert("🎉 Alhamdulillah Nana! Kesemua fail gambar baru telah berjaya dimuat naik, dan seluruh kemas kini visual website anda telah diterbitkan secara serentak ke dalam GitHub!");
+                alert("🎉 Alhamdulillah Nana! Kesemua fail gambar, pengubahsuaian reka bentuk font, saiz, warna, serta data baharu telah berjaya diterbitkan secara serentak ke dalam GitHub!");
                 window.location.reload();
 
             } catch (err) {
@@ -1010,12 +1208,3 @@
     </script>
 </body>
 </html>
-```
-eof
-
-### Rumusan Keupayaan Baharu:
-* **Uploader Pintar:** Butang **"Muat Naik Fail"** kini disepadukan dengan lancar dalam modal Background, Tukar Logo, Borang Buku, dan Borang Pengawas.
-* **Instant Local Preview:** Pengguna dapat melihat hasil preview gambar (Base64) dengan serta-merta tanpa perlu menunggu fail dimuat naik ke GitHub dahulu.
-* **One-Click Bulk Publishing:** Apabila butang hijau ditekan, fail-fail imej binari ini akan dihantar terlebih dahulu ke folder `assets/images/` di GitHub Nana, diikuti dengan fail `index.html` dan data markdown yang sepadan.
-
-Sila simpan kod ini di dalam fail `admin/index.html` Nana. Nana kini boleh menguji fungsi muat naik fail gambar dengan selesa dari peranti Nana! 😊
