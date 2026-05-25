@@ -2,7 +2,7 @@ backend:
   name: github
   repo: safurazakaria/skklt
   branch: main
-  base_url: https://skylert.vercel.app
+  base_url: https://pss-skylert-login.vercel.app
   auth_endpoint: auth
 
 media_folder: "assets/images"
