@@ -58,23 +58,24 @@
             <div class="flex items-center space-x-1.5 border-l pl-4">
                 <input type="color" id="style-color" class="w-8 h-8 border rounded-lg cursor-pointer p-0 bg-transparent">
             </div>
+
             <div class="flex items-center space-x-1 text-sm border-l pl-4">
-                // Bold, Italic, Underline Toggles (Menggunakan execCommand supaya berfungsi pada teks terpilih)
-        document.getElementById('style-bold').addEventListener('click', () => {
-            document.execCommand('bold', false, null);
-            if (activeEditableElement) activeEditableElement.focus();
-        });
-        
-        document.getElementById('style-italic').addEventListener('click', () => {
-            document.execCommand('italic', false, null);
-            if (activeEditableElement) activeEditableElement.focus();
-        });
-        
-        document.getElementById('style-underline').addEventListener('click', () => {
-            document.execCommand('underline', false, null);
-            if (activeEditableElement) activeEditableElement.focus();
-        });
-            </div>
+    <button id="style-bold"
+        class="px-2 py-1 bg-slate-100 rounded hover:bg-purple-100">
+        <i class="fas fa-bold"></i>
+    </button>
+
+    <button id="style-italic"
+        class="px-2 py-1 bg-slate-100 rounded hover:bg-purple-100">
+        <i class="fas fa-italic"></i>
+    </button>
+
+    <button id="style-underline"
+        class="px-2 py-1 bg-slate-100 rounded hover:bg-purple-100">
+        <i class="fas fa-underline"></i>
+    </button>
+</div>
+            
         </div>
         <button id="btn-reset-text" class="text-[10px] text-red-500 font-extrabold uppercase"><i class="fas fa-undo"></i> Reset</button>
     </div>
@@ -293,7 +294,15 @@
         const modalF = document.getElementById('modal-form');
 
         document.getElementById('btn-add-nilam').addEventListener('click', () => { currentType = "nilam"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Aktiviti NILAM" class="w-full border p-2 rounded"><textarea name="body" placeholder="Keterangan..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
-        document.getElementById('btn-add-buku').addEventListener('click', () => { currentType = "rak_buku"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Buku" class="w-full border p-2 rounded"><input type="text" name="penulis" placeholder="Penulis" class="w-full border p-2 rounded"><select name="kategori" class="w-full border p-2 rounded"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select><input type="text" name="cover" placeholder="URL Cover" class="w-full border p-2 rounded"><input type="text" name="link" placeholder="URL Read Link" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
+        document.getElementById('btn-add-buku').addEventListener('click', () => { currentType = "rak_buku"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Buku" class="w-full border p-2 rounded"><input type="text" name="penulis" placeholder="Penulis" class="w-full border p-2 rounded"><select name="kategori" class="w-full border p-2 rounded"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select><input type="text"
+name="cover"
+placeholder="URL Cover"
+class="w-full border p-2 rounded">
+
+<input type="file"
+id="cover-upload"
+accept="image/*"
+class="w-full border p-2 rounded"><input type="text" name="link" placeholder="URL Read Link" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
         document.getElementById('btn-add-tvpss').addEventListener('click', () => { currentType = "tvpss"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Siaran" class="w-full border p-2 rounded"><input type="text" name="embed_url" placeholder="Pautan Embed YouTube URL" class="w-full border p-2 rounded"><textarea name="desc" placeholder="Deskripsi..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
         document.getElementById('btn-add-pengawas').addEventListener('click', () => { currentType = "pengawas"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Pengawas" class="w-full border p-2 rounded"><input type="text" name="jawatan" placeholder="Jawatan" class="w-full border p-2 rounded" value="Pengawas PSS"><input type="text" name="gambar" placeholder="URL Foto Pengawas" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
         document.getElementById('btn-add-program').addEventListener('click', () => { currentType = "program"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Program" class="w-full border p-2 rounded"><input type="text" name="timeline" placeholder="Mac 2026 / Julai 2026" class="w-full border p-2 rounded"><select name="status" class="w-full border p-2 rounded"><option>Akan Datang</option><option>Selesai</option></select><textarea name="desc" placeholder="Deskripsi ringkas..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
@@ -312,7 +321,47 @@
         window.applyLogoSettings = function() { document.getElementById('img-school-logo').src = document.getElementById('logo-url-input').value; document.getElementById('modal-logo').classList.add('hidden'); };
         window.openBgSettings = function(id) { document.getElementById('target-section-id').value = id; document.getElementById('modal-bg-settings').classList.remove('hidden'); };
         window.toggleBgInputs = function() { const t = document.getElementById('bg-type-selector').value; document.getElementById('bg-solid-field').classList.toggle('hidden', t!=='solid'); document.getElementById('bg-image-field').classList.toggle('hidden', t!=='image'); };
-        window.applyBgSettings = function() { const id = document.getElementById('target-section-id').value; const el = document.getElementById(id); const t = document.getElementById('bg-type-selector').value; if(t==='solid') el.style.backgroundColor = document.getElementById('bg-solid-color').value; if(t==='image') el.style.backgroundImage = `url('${document.getElementById('bg-image-url-input').value}')`; document.getElementById('modal-bg-settings').classList.add('hidden'); };
+        window.applyBgSettings = function() {
+
+    const id =
+        document.getElementById('target-section-id').value;
+
+    const el =
+        document.getElementById(id);
+
+    const t =
+        document.getElementById('bg-type-selector').value;
+
+    const color =
+        document.getElementById('bg-solid-color').value;
+
+    const image =
+        document.getElementById('bg-image-url-input').value;
+
+    if(t === 'solid'){
+        el.style.backgroundColor = color;
+        el.style.backgroundImage = '';
+    }
+
+    if(t === 'image'){
+        el.style.backgroundImage = `url('${image}')`;
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+    }
+
+    // SIMPAN SETTING BG
+    localStorage.setItem(
+        'bg_' + id,
+        JSON.stringify({
+            type: t,
+            color: color,
+            image: image
+        })
+    );
+
+    document.getElementById('modal-bg-settings')
+        .classList.add('hidden');
+};
 
         // BULK PUSH ENGINE SYSTEM (VERSI KEMAS KINI: SIMPAN TEKS & KAD .MD)
         document.getElementById('btn-save-all').addEventListener('click', async () => {
@@ -340,7 +389,8 @@
                     'txt-nilam-title', 'txt-nilam-desc', 'txt-rak-title', 'txt-rak-desc',
                     'txt-tvpss-title', 'txt-tvpss-desc', 'txt-mgr-title', 'txt-mgr-desc',
                     'txt-visi', 'txt-misi', 'txt-carta-title', 'lbl-p1', 'txt-p1', 
-                    'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title', 'txt-program-title'
+                    'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title',
+                    'txt-pengawas-desc', 'txt-program-desc', 'txt-program-title'
                 ];
 
                 textElementsToSync.forEach(id => {
@@ -349,12 +399,39 @@
                     if (adminEl && publicEl) {
                         // Salin text / innerHTML (termasuk hasil bold/italic jika ada)
                         publicEl.innerHTML = adminEl.innerHTML;
-                        // Salin juga font-style inline jika Nana ada ubah menerusi font selector
-                        if (adminEl.style.fontFamily) publicEl.style.fontFamily = adminEl.style.fontFamily;
-                        if (adminEl.style.fontSize) publicEl.style.fontSize = adminEl.style.fontSize;
-                        if (adminEl.style.color) publicEl.style.color = adminEl.style.color;
+                        publicEl.style.cssText =
+    adminEl.style.cssText;
                     }
                 });
+
+                // SYNC BACKGROUND SECTION
+
+['hero','nilam','rak-maya','tvpss',
+ 'pengurusan','pengawas','program']
+.forEach(sectionId => {
+
+    const adminEl =
+        document.getElementById(sectionId);
+
+    const publicEl =
+        publicDoc.getElementById(sectionId);
+
+    if(adminEl && publicEl){
+
+        publicEl.style.backgroundImage =
+            adminEl.style.backgroundImage;
+
+        publicEl.style.backgroundColor =
+            adminEl.style.backgroundColor;
+
+        publicEl.style.backgroundSize =
+            adminEl.style.backgroundSize;
+
+        publicEl.style.backgroundPosition =
+            adminEl.style.backgroundPosition;
+    }
+
+});
 
                 // Salin juga URL logo sekolah jika ada perubahan
                 const adminLogo = document.getElementById('img-school-logo');
@@ -414,12 +491,94 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            ambilDataPelayanCms('data/nilam', 'nilam', rNilam, 'nilam-grid');
-            ambilDataPelayanCms('data/rak_buku', 'rak_buku', rBuku, 'rak-buku-container');
-            ambilDataPelayanCms('data/tvpss', 'tvpss', rTvpss, 'tvpss-container');
-            ambilDataPelayanCms('data/pengawas', 'pengawas', rPengawas, 'pengawas-container');
-            ambilDataPelayanCms('data/program', 'program', rProgram, 'program-list-container');
-        });
+
+    [
+        'hero',
+        'nilam',
+        'rak-maya',
+        'tvpss',
+        'pengurusan',
+        'pengawas',
+        'program'
+    ].forEach(id => {
+
+        const saved =
+            localStorage.getItem('bg_' + id);
+
+        if(saved){
+
+            const bg =
+                JSON.parse(saved);
+
+            const el =
+                document.getElementById(id);
+
+            if(bg.type === 'solid'){
+                el.style.backgroundColor =
+                    bg.color;
+            }
+
+            if(bg.type === 'image'){
+                el.style.backgroundImage =
+                    `url('${bg.image}')`;
+
+                el.style.backgroundSize =
+                    'cover';
+
+                el.style.backgroundPosition =
+                    'center';
+            }
+        }
+
+    });
+
+    ambilDataPelayanCms('data/nilam', 'nilam', rNilam, 'nilam-grid');
+    ambilDataPelayanCms('data/rak_buku', 'rak_buku', rBuku, 'rak-buku-container');
+    ambilDataPelayanCms('data/tvpss', 'tvpss', rTvpss, 'tvpss-container');
+    ambilDataPelayanCms('data/pengawas', 'pengawas', rPengawas, 'pengawas-container');
+    ambilDataPelayanCms('data/program', 'program', rProgram, 'program-list-container');
+
+});
+
+        document.getElementById('style-bold').addEventListener('click', () => {
+    document.execCommand('bold');
+});
+
+document.getElementById('style-italic').addEventListener('click', () => {
+    document.execCommand('italic');
+});
+
+document.getElementById('style-underline').addEventListener('click', () => {
+    document.execCommand('underline');
+});
+
+        async function imageToBase64(file){
+
+    return new Promise((resolve)=>{
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+}
+
+        const fileInput =
+document.getElementById('cover-upload');
+
+if(fileInput && fileInput.files.length){
+
+    item.cover =
+        await imageToBase64(
+            fileInput.files[0]
+        );
+
+}
     </script>
 </body>
 </html>
