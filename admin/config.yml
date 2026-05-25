@@ -1,1 +1,30 @@
+backend:
+  name: github
+  repo: username_github_anda/nama_repositori_anda # GANTI INI DENGAN REPO ANDA
+  branch: main # Branch utama untuk simpan data
 
+media_folder: "assets/images" # Folder tempat gambar admin muat naik akan disimpan
+public_folder: "/assets/images"
+
+collections:
+  - name: "pengawas"
+    label: "Senarai Pengawas PSS"
+    folder: "data/pengawas"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Nama Penuh", name: "title", widget: "string" }
+      - { label: "Jawatan", name: "jawatan", widget: "string" }
+      - { label: "Gambar Pengawas", name: "gambar", widget: "image" }
+
+  - name: "rak_buku"
+    label: "Rak Buku Maya"
+    folder: "data/rak_buku"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tajuk Buku", name: "title", widget: "string" }
+      - { label: "Penulis", name: "penulis", widget: "string" }
+      - { label: "Kategori", name: "kategori", widget: "select", options: ["FIKSYEN", "SAINS", "SEJARAH", "MOTIVASI"] }
+      - { label: "Gambar Kulit Buku", name: "cover", widget: "image" }
+      - { label: "Pautan E-Book (URL)", name: "link", widget: "string" }
