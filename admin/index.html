@@ -604,8 +604,7 @@ const getIndexRes = await fetch(indexUrl, {
                     await pushToGitHub(`data/program/${item._filename}`, md, item._sha);
                 }
 
-                alert("🎉 Alhamdulillah Nana! Semua pengubahan perkataan teks utama serta data kad baharu telah berjaya disinkronasikan dan disimpan terus ke pelayan GitHub!");
-                window.location.reload();
+                alert("🎉 Semua pengubahan perkataan teks utama serta data kad baharu telah berjaya disimpan terus ke GitHub!");
 
             } catch(e) { 
                 console.error(e);
