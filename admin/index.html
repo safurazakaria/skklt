@@ -18,18 +18,23 @@
         
         /* Indikator visual untuk elemen yang boleh diedit */
         [contenteditable="true"]:hover {
-            outline: 2px dashed #a855f7;
-            background-color: rgba(168, 85, 247, 0.05);
+            outline: 3px dashed #a855f7;
+            background-color: rgba(168, 85, 247, 0.08);
             cursor: pointer;
         }
         [contenteditable="true"]:focus {
-            outline: 2px solid #a855f7;
-            background-color: rgba(168, 85, 247, 0.1);
+            outline: 3px solid #a855f7;
+            background-color: rgba(168, 85, 247, 0.12);
         }
         
         /* Hover effect khusus untuk kad yang boleh dipadam oleh admin */
         .card-item:hover .admin-delete-btn {
             opacity: 1;
+        }
+
+        /* Pancaran kesan glow khas pada widget aktif */
+        .glow-active {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
         }
     </style>
 </head>
@@ -42,21 +47,28 @@
             <p class="text-xs text-slate-300 hidden lg:block">Klik mana-mana teks untuk menukar gaya (warna, saiz, font), ubah gambar background & publish semua perubahan sekali gus.</p>
         </div>
         <div class="flex items-center space-x-3">
+            <!-- Manual Toggle Button sekiranya Styling Bar hilang -->
+            <button onclick="toggleStylingBarManual()" class="bg-purple-800 hover:bg-purple-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 border border-purple-500/30">
+                <i class="fas fa-sliders-h"></i> <span id="btn-toggle-text">Tunjuk Panel Teks</span>
+            </button>
             <button id="btn-save-all" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-2 rounded-xl transition flex items-center space-x-2 shadow-lg shadow-emerald-950/50">
                 <i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>
             </button>
         </div>
     </div>
 
-    <!-- SUPER FLOATING TEXT STYLING BAR (Slaid ke bawah bila teks difokus) -->
-    <div id="text-style-bar" class="fixed top-14 left-0 right-0 bg-white border-b border-purple-100 shadow-md z-40 px-6 py-2 flex-wrap items-center gap-4 text-xs font-medium text-slate-700 justify-between hidden transition-all duration-300 animate-in slide-in-from-top-4">
-        <div class="flex flex-wrap items-center gap-3">
-            <span class="text-purple-700 font-bold uppercase tracking-wider text-[10px] bg-purple-50 px-2 py-1 rounded"><i class="fas fa-font"></i> Gaya Teks</span>
+    <!-- FLOATING TEXT STYLING BAR (Slaid ke bawah & Dijamin Kelihatan di Atas) -->
+    <div id="text-style-bar" class="fixed top-14 left-4 right-4 bg-white/95 backdrop-blur-md border-2 border-purple-500 shadow-2xl rounded-2xl z-[100] p-4 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-700 justify-between hidden transition-all duration-300 animate-bounce-short ring-4 ring-purple-500/20">
+        <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+            <div class="flex items-center space-x-2 bg-purple-50 px-3 py-1.5 rounded-xl border border-purple-100">
+                <span class="text-purple-700 font-extrabold uppercase tracking-wider text-[10px] animate-pulse"><i class="fas fa-font"></i> Elemen Terpilih</span>
+                <span id="active-element-tag" class="bg-purple-200 text-purple-800 text-[9px] px-1.5 py-0.5 rounded font-bold">TIADA</span>
+            </div>
             
-            <!-- Font Family -->
-            <div class="flex items-center space-x-1">
-                <label class="text-[10px] text-slate-400 font-bold uppercase">Font:</label>
-                <select id="style-font" class="border p-1.5 rounded focus:ring-1 focus:ring-purple-500 outline-none font-sans text-xs bg-slate-50 cursor-pointer">
+            <!-- Font Family Selector -->
+            <div class="flex items-center space-x-1.5">
+                <label class="text-[10px] text-slate-400 font-bold uppercase">Tulisan/Font:</label>
+                <select id="style-font" class="border p-1.5 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none font-sans text-xs bg-slate-50 cursor-pointer">
                     <option value="'Poppins', sans-serif">Poppins (Modern/Sans)</option>
                     <option value="'Inter', sans-serif">Inter (Clean/Minimal)</option>
                     <option value="'Montserrat', sans-serif">Montserrat (Bold/Trendy)</option>
@@ -68,18 +80,18 @@
                 </select>
             </div>
 
-            <!-- Font Size -->
-            <div class="flex items-center space-x-1">
+            <!-- Font Size Slider -->
+            <div class="flex items-center space-x-2">
                 <label class="text-[10px] text-slate-400 font-bold uppercase">Saiz:</label>
-                <input type="range" id="style-size" min="12" max="100" value="16" class="w-24 accent-purple-600 cursor-pointer">
-                <span id="style-size-val" class="w-8 text-center text-[10px] font-bold text-purple-600">16px</span>
+                <input type="range" id="style-size" min="12" max="100" value="16" class="w-28 accent-purple-600 cursor-pointer">
+                <span id="style-size-val" class="bg-purple-100 px-2 py-0.5 rounded text-[10px] font-bold text-purple-700">16px</span>
             </div>
 
-            <!-- Text Color -->
-            <div class="flex items-center space-x-1.5 border-l pl-3 border-slate-200">
+            <!-- Text Color Picker -->
+            <div class="flex items-center space-x-1.5 border-l pl-4 border-slate-200">
                 <label class="text-[10px] text-slate-400 font-bold uppercase">Warna:</label>
-                <input type="color" id="style-color" class="w-6 h-6 border-0 rounded cursor-pointer p-0 bg-transparent">
-                <!-- Palet Segera -->
+                <input type="color" id="style-color" class="w-8 h-8 border rounded-lg cursor-pointer p-0 bg-transparent">
+                <!-- Palet Pintas -->
                 <div class="flex space-x-1">
                     <button onclick="setQuickColor('#ffffff')" class="w-4 h-4 rounded-full border border-slate-300 bg-white" title="Putih"></button>
                     <button onclick="setQuickColor('#0f172a')" class="w-4 h-4 rounded-full bg-slate-900" title="Gelap"></button>
@@ -90,22 +102,22 @@
                 </div>
             </div>
 
-            <!-- Alignment -->
-            <div class="flex items-center space-x-1 border-l pl-3 border-slate-200 text-sm">
-                <button id="style-align-left" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Kiri"><i class="fas fa-align-left"></i></button>
-                <button id="style-align-center" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Tengah"><i class="fas fa-align-center"></i></button>
-                <button id="style-align-right" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Kanan"><i class="fas fa-align-right"></i></button>
+            <!-- Text Alignment -->
+            <div class="flex items-center space-x-1 border-l pl-4 border-slate-200 text-sm">
+                <button id="style-align-left" class="p-1.5 rounded hover:bg-purple-100 text-slate-500 transition" title="Kiri"><i class="fas fa-align-left"></i></button>
+                <button id="style-align-center" class="p-1.5 rounded hover:bg-purple-100 text-slate-500 transition" title="Tengah"><i class="fas fa-align-center"></i></button>
+                <button id="style-align-right" class="p-1.5 rounded hover:bg-purple-100 text-slate-500 transition" title="Kanan"><i class="fas fa-align-right"></i></button>
             </div>
 
-            <!-- Formatting -->
-            <div class="flex items-center space-x-1 border-l pl-3 border-slate-200 text-sm">
-                <button id="style-bold" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Tebal"><i class="fas fa-bold"></i></button>
-                <button id="style-italic" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Condong"><i class="fas fa-italic"></i></button>
-                <button id="style-underline" class="p-1 px-2 rounded hover:bg-purple-50 text-slate-500" title="Garis Bawah"><i class="fas fa-underline"></i></button>
+            <!-- Formatting Actions -->
+            <div class="flex items-center space-x-1 border-l pl-4 border-slate-200 text-sm">
+                <button id="style-bold" class="p-1.5 rounded hover:bg-purple-100 text-slate-500 transition" title="Tebal"><i class="fas fa-bold"></i></button>
+                <button id="style-italic" class="p-1.5 rounded hover:bg-purple-100 text-slate-500 transition" title="Condong"><i class="fas fa-italic"></i></button>
+                <button id="style-underline" class="p-1.5 rounded hover:bg-purple-100 text-slate-500 transition" title="Garis Bawah"><i class="fas fa-underline"></i></button>
             </div>
         </div>
         
-        <button id="btn-reset-text" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase transition flex items-center space-x-1">
+        <button id="btn-reset-text" class="text-[10px] text-red-500 hover:text-red-700 font-extrabold uppercase transition flex items-center space-x-1">
             <i class="fas fa-undo"></i> <span>Reset Gaya</span>
         </button>
     </div>
@@ -138,18 +150,18 @@
         </div>
     </nav>
 
-    <!-- HERO SECTION (Kategori Theme Background Boleh Ditukar) -->
+    <!-- HERO SECTION -->
     <section id="hero" class="pt-32 pb-20 bg-gradient-to-b from-purple-900 via-indigo-950 to-slate-50 text-white relative overflow-hidden transition-all duration-500 bg-cover bg-center">
         <!-- BUTANG BACKGROUND SETTINGS -->
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('hero')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG Hero</span>
+            <button onclick="openBgSettings('hero')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG Hero (Warna/Slaid/Glow)</span>
             </button>
         </div>
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
         <div class="container mx-auto px-6 text-center relative z-10">
             
-            <!-- LOGO SEKOLAH (Clickable to change URL / Upload File) -->
+            <!-- LOGO SEKOLAH (Muat naik terus atau letak URL) -->
             <div class="flex flex-col items-center justify-center mb-6">
                 <div class="relative group cursor-pointer inline-block" id="school-logo-container" onclick="openLogoSettings()">
                     <img id="img-school-logo" src="https://placehold.co/120x120/a855f7/ffffff?text=LOGO" class="h-28 w-28 object-contain rounded-full border-4 border-purple-500/30 p-2 bg-white/10 backdrop-blur-sm shadow-lg transition duration-300 hover:scale-105" alt="Logo Sekolah">
@@ -168,8 +180,8 @@
     <!-- SECTION: NILAM -->
     <section id="nilam" class="py-20 relative transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('nilam')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG NILAM</span>
+            <button onclick="openBgSettings('nilam')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG NILAM</span>
             </button>
         </div>
         <div class="container mx-auto px-6">
@@ -200,13 +212,6 @@
                     <h3 contenteditable="true" class="font-bold text-xl mb-3">Anugerah Bintang</h3>
                     <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Sistem pengiktirafan bilangan bacaan. Kumpulkan jumlah buku bagi melayakkan anda mendapat penarafan sehingga 5 Bintang.</p>
                 </div>
-                <!-- Kad NILAM 3 -->
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item">
-                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-                    <div class="w-12 h-12 bg-fuchsia-100 rounded-xl flex items-center justify-center text-fuchsia-600 mb-6 text-xl"><i class="fas fa-chart-bar"></i></div>
-                    <h3 contenteditable="true" class="font-bold text-xl mb-3">Statistik Semasa</h3>
-                    <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Lihat carta kedudukan kelas teratas dan jumlah keseluruhan bahan bacaan yang telah direkodkan sepanjang tahun 2026.</p>
-                </div>
             </div>
         </div>
     </section>
@@ -214,8 +219,8 @@
     <!-- SECTION: RAK BUKU MAYA -->
     <section id="rak-maya" class="py-20 bg-purple-50 relative transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('rak-maya')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG Rak Maya</span>
+            <button onclick="openBgSettings('rak-maya')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG Rak Maya</span>
             </button>
         </div>
         <div class="container mx-auto px-6">
@@ -240,8 +245,8 @@
     <!-- SECTION: YOUTUBE TVPSS -->
     <section id="tvpss" class="py-20 relative transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('tvpss')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG TvPSS</span>
+            <button onclick="openBgSettings('tvpss')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG TvPSS</span>
             </button>
         </div>
         <div class="container mx-auto px-6">
@@ -269,7 +274,6 @@
                         <h3 contenteditable="true" class="font-bold text-xl text-slate-900 mt-3">Laporan Khas Mingguan: Aktiviti Pusat Sumber Skylert 2026</h3>
                         <p contenteditable="true" class="text-slate-500 text-sm mt-1">Diterbitkan oleh krew TvPSS Skylert Media</p>
                         
-                        <!-- Box khas admin untuk ubah link youtube -->
                         <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-purple-200 admin-only">
                             <label class="block text-[10px] font-bold text-purple-700 uppercase mb-1">Pautan Embed YouTube:</label>
                             <input type="text" value="https://www.youtube.com/embed/dQw4w9WgXcQ" class="w-full border text-xs p-2 rounded focus:ring-1 focus:ring-purple-500 outline-none" oninput="updateYoutubeIframe(this)">
@@ -283,8 +287,8 @@
     <!-- SECTION: PENGURUSAN PUSAT SUMBER -->
     <section id="pengurusan" class="py-20 bg-slate-100/80 border-y border-purple-50 relative transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('pengurusan')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG Pengurusan</span>
+            <button onclick="openBgSettings('pengurusan')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG Pengurusan</span>
             </button>
         </div>
         <div class="container mx-auto px-6">
@@ -304,32 +308,14 @@
                     <p id="txt-misi" contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Menyediakan persekitaran pembelajaran kondusif, mempelbagaikan koleksi bahan digital dan fizikal berkualiti, serta memperkasa kompetensi teknologi maklumat dalam kalangan warga sekolah.</p>
                 </div>
             </div>
-
-            <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl border border-purple-100 shadow-sm">
-                <h3 id="txt-carta-title" contenteditable="true" class="font-bold text-xl mb-6 text-center text-slate-900">Jawatankuasa Tertinggi Pengurusan</h3>
-                <div class="divide-y divide-purple-50">
-                    <div class="py-3.5 flex justify-between items-center text-sm">
-                        <span id="lbl-p1" contenteditable="true" class="font-medium text-slate-500">Pengerusi (Guru Besar / Pengetua)</span>
-                        <span id="txt-p1" contenteditable="true" class="font-bold text-slate-900">Encik Mustaffa bin Rahman</span>
-                    </div>
-                    <div class="py-3.5 flex justify-between items-center text-sm">
-                        <span id="lbl-p2" contenteditable="true" class="font-medium text-slate-500">Naib Pengerusi (GPK Pentadbiran)</span>
-                        <span id="txt-p2" contenteditable="true" class="font-bold text-slate-900">Puan Hajah Siti Zubaidah</span>
-                    </div>
-                    <div class="py-3.5 flex justify-between items-center text-sm">
-                        <span id="lbl-p3" contenteditable="true" class="font-medium text-slate-500">Guru Perpustakaan & Media (GPM)</span>
-                        <span id="txt-p3" contenteditable="true" class="font-bold text-purple-700">Cik Norashikin binti Mohd Ali</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
     <!-- SECTION: PENGAWAS PSS -->
     <section id="pengawas" class="py-20 relative transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('pengawas')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG Pengawas</span>
+            <button onclick="openBgSettings('pengawas')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG Pengawas</span>
             </button>
         </div>
         <div class="container mx-auto px-6">
@@ -354,8 +340,8 @@
     <!-- SECTION: PROGRAM PSS -->
     <section id="program" class="py-20 bg-purple-900 text-white relative overflow-hidden transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('program')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG Program</span>
+            <button onclick="openBgSettings('program')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG Program</span>
             </button>
         </div>
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
@@ -390,8 +376,8 @@
     <!-- FOOTER -->
     <footer id="footer-section" class="bg-slate-950 text-slate-400 py-12 text-sm border-t border-slate-900 relative transition-all duration-500 bg-cover bg-center">
         <div class="admin-only absolute top-4 right-4 z-20">
-            <button onclick="openBgSettings('footer-section')" class="bg-slate-900/80 hover:bg-slate-900 border border-purple-500/50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1.5 shadow-md">
-                <i class="fas fa-paint-brush"></i> <span>Ubah BG Footer</span>
+            <button onclick="openBgSettings('footer-section')" class="bg-slate-900/90 hover:bg-slate-900 border border-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-lg">
+                <i class="fas fa-palette"></i> <span>Ubah BG Footer</span>
             </button>
         </div>
         <div class="container mx-auto px-6 text-center">
@@ -442,30 +428,57 @@
         </div>
     </div>
 
-    <!-- POPUP MODAL UNTUK EDIT BACKGROUND SETTINGS SECTION -->
+    <!-- POPUP MODAL UNTUK EDIT BACKGROUND SETTINGS SECTION (Warna Solid, Kecerunan, Gambar & Kesan Cahaya Glow) -->
     <div id="modal-bg-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full overflow-hidden">
-            <div class="bg-slate-950 p-4 text-white font-bold flex justify-between items-center">
-                <span>Pengaturan Background Bahagian</span>
+        <div class="bg-white rounded-2xl shadow-xl border border-purple-100 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="bg-slate-950 p-4 text-white font-bold flex justify-between items-center sticky top-0 z-10">
+                <span>Rekabentuk Latar Belakang (BG) & Glow</span>
                 <button onclick="closeBgSettings()" class="text-slate-300 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-5">
                 <input type="hidden" id="target-section-id">
                 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Background</label>
-                    <select id="bg-type-selector" class="w-full border p-2 text-sm rounded-lg" onchange="toggleBgInputs()">
-                        <option value="none">Default / Kosong (Tiada Custom)</option>
-                        <option value="color">Warna / Kecerunan (Tailwind Classes)</option>
-                        <option value="image">Gambar Latar Belakang</option>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Background</label>
+                    <select id="bg-type-selector" class="w-full border p-2.5 text-sm rounded-lg" onchange="toggleBgInputs()">
+                        <option value="none">Kosong / Default (Asal)</option>
+                        <option value="solid">Warna Solid (Solid Color Slider)</option>
+                        <option value="gradient">Kecerunan Warna (Gradient Builder)</option>
+                        <option value="image">Gambar Latar Belakang (Image)</option>
                     </select>
                 </div>
 
-                <!-- Input untuk Gradient / Warna -->
-                <div id="bg-color-field" class="hidden">
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Tailwind Gradient / Color Classes</label>
-                    <input type="text" id="bg-classes-input" class="w-full border p-2 text-sm rounded-lg" placeholder="bg-gradient-to-r from-purple-800 to-indigo-950">
-                    <p class="text-[10px] text-slate-400 mt-1">Gunakan kelas Tailwind CSS standard.</p>
+                <!-- Input untuk Warna Solid -->
+                <div id="bg-solid-field" class="hidden space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">Pilih Warna Solid</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" id="bg-solid-color" class="w-12 h-12 border rounded-xl cursor-pointer" value="#a855f7">
+                        <input type="text" id="bg-solid-hex" class="border p-2.5 text-xs rounded-lg w-full" value="#a855f7" oninput="syncSolidHex(this.value)">
+                    </div>
+                </div>
+
+                <!-- Input untuk Gradient -->
+                <div id="bg-gradient-field" class="hidden space-y-3">
+                    <label class="block text-xs font-bold text-slate-700">Kecerunan Warna (Gradient)</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">Warna Mula</span>
+                            <input type="color" id="bg-grad-color1" class="w-full h-10 border rounded-lg cursor-pointer" value="#a855f7">
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">Warna Tamat</span>
+                            <input type="color" id="bg-grad-color2" class="w-full h-10 border rounded-lg cursor-pointer" value="#3b82f6">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Arah Gradient</label>
+                        <select id="bg-grad-dir" class="w-full border p-2.5 text-sm rounded-lg">
+                            <option value="to right">Kiri ke Kanan (Horizontal)</option>
+                            <option value="to bottom">Atas ke Bawah (Vertical)</option>
+                            <option value="to bottom right">Diagonal (Pijuru)</option>
+                            <option value="circle">Radial (Bulatan Tengah)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Input untuk URL Gambar atau Upload -->
@@ -496,7 +509,44 @@
                     </div>
                 </div>
 
-                <button onclick="applyBgSettings()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition">Apply Perubahan Visual</button>
+                <!-- KESAN GLOW / BAYANG SEKSYEN (Selalu Boleh Ditambah/Diadjust) -->
+                <div class="border-t pt-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-extrabold text-purple-900 flex items-center"><i class="fas fa-magic mr-1.5 animate-pulse"></i> Kesan Glow (Glowing Effect)</label>
+                        <input type="checkbox" id="bg-glow-toggle" class="w-4 h-4 accent-purple-600 cursor-pointer" onchange="toggleGlowInputs()">
+                    </div>
+                    <div id="bg-glow-controls" class="hidden space-y-3 pl-3 border-l-2 border-purple-300">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">Warna Glow</span>
+                                <input type="color" id="bg-glow-color" class="w-full h-8 border rounded-lg cursor-pointer" value="#a855f7">
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">Arah Glow</span>
+                                <select id="bg-glow-type" class="w-full border p-1.5 text-xs rounded-lg">
+                                    <option value="outer">Outer Glow (Luar)</option>
+                                    <option value="inset">Inner Glow (Dalam)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-500 font-semibold mb-1">
+                                <span>Kepekatan Blur Glow</span>
+                                <span id="bg-glow-blur-val">30px</span>
+                            </div>
+                            <input type="range" id="bg-glow-blur" min="5" max="150" value="30" class="w-full accent-purple-600" oninput="syncGlowBlur(this.value)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-500 font-semibold mb-1">
+                                <span>Spread / Saiz Glow</span>
+                                <span id="bg-glow-spread-val">5px</span>
+                            </div>
+                            <input type="range" id="bg-glow-spread" min="-10" max="50" value="5" class="w-full accent-purple-600" oninput="syncGlowSpread(this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="applyBgSettings()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-xl transition shadow-md">Apply Perubahan Latar Belakang</button>
             </div>
         </div>
     </div>
@@ -542,11 +592,16 @@
         const styleSize = document.getElementById('style-size');
         const styleSizeVal = document.getElementById('style-size-val');
         const styleColor = document.getElementById('style-color');
+        const activeTag = document.getElementById('active-element-tag');
 
-        // Memaparkan dan menyembunyikan Text Style Bar apabila input diedit
-        document.addEventListener('focusin', (e) => {
-            if (e.target.hasAttribute('contenteditable')) {
-                activeEditableElement = e.target;
+        // Buka panel gaya apabila sebarang elemen [contenteditable="true"] diklik
+        document.addEventListener('click', (e) => {
+            const editable = e.target.closest('[contenteditable="true"]');
+            if (editable) {
+                activeEditableElement = editable;
+                
+                // Set tag pengenalan
+                activeTag.innerText = editable.tagName + (editable.id ? ` (#${editable.id})` : "");
                 
                 // Baca tetapan gaya teks semasa elemen difokuskan
                 const computedStyle = window.getComputedStyle(activeEditableElement);
@@ -561,19 +616,38 @@
                 // Tukar format warna kepada HEX untuk di-bind pada Color Picker
                 styleColor.value = rgbToHex(computedStyle.color);
 
+                // Tambahkan pancaran visual untuk memberitahu bar aktif telah dibuka
                 styleBar.classList.remove('hidden');
                 styleBar.classList.add('flex');
-            }
-        });
-
-        // Tutup Text Styling Bar jika klik di luar kawasan contenteditable & bar gaya
-        document.addEventListener('click', (e) => {
-            if (!e.target.hasAttribute('contenteditable') && !styleBar.contains(e.target) && !e.target.closest('.admin-only') && !e.target.closest('button')) {
+                styleBar.classList.add('glow-active');
+                setTimeout(() => styleBar.classList.remove('glow-active'), 1000);
+            } else if (!styleBar.contains(e.target) && !e.target.closest('.admin-only') && !e.target.closest('button')) {
+                // Sembunyikan panel jika klik di luar kawasan teks & luar panel gaya
                 styleBar.classList.add('hidden');
                 styleBar.classList.remove('flex');
                 activeEditableElement = null;
             }
         });
+
+        // Toggle Manual jika Styling Bar hilang daripada skrin
+        window.toggleStylingBarManual = function() {
+            const btn = document.getElementById('btn-toggle-text');
+            if (styleBar.classList.contains('hidden')) {
+                styleBar.classList.remove('hidden');
+                styleBar.classList.add('flex');
+                btn.innerText = "Sembunyi Panel Teks";
+                
+                // Set elemen sasaran default jika tiada yang dipilih
+                if (!activeEditableElement) {
+                    activeEditableElement = document.getElementById('txt-hero-title');
+                    activeTag.innerText = "H1 (#txt-hero-title)";
+                }
+            } else {
+                styleBar.classList.add('hidden');
+                styleBar.classList.remove('flex');
+                btn.innerText = "Tunjuk Panel Teks";
+            }
+        };
 
         // Event listener penukaran gaya secara langsung (real-time listeners)
         styleFont.addEventListener('change', () => {
@@ -683,7 +757,6 @@
                     document.getElementById('bg-image-url-input').value = relativePath;
                     document.getElementById('bg-file-status').innerText = `✓ Fail sedia diproses: ${file.name}`;
                 } else if (purpose === 'form-image') {
-                    // Simpan gambar form di storan sementara
                     window.lastUploadedFormImage = uploadPayload;
                     const previewImg = document.getElementById('form-image-preview');
                     if (previewImg) previewImg.src = e.target.result;
@@ -713,7 +786,6 @@
             const urlVal = document.getElementById('logo-url-input').value.trim();
             if (urlVal) {
                 document.getElementById('img-school-logo').src = urlVal;
-                // Jika ia adalah imej baru yang diupload, tolak ke pending_uploads
                 if (memoryStore.uploaded_logo && memoryStore.uploaded_logo.path === urlVal) {
                     memoryStore.pending_uploads.push(memoryStore.uploaded_logo);
                     memoryStore.uploaded_logo = null; 
@@ -723,35 +795,98 @@
         };
 
         // -----------------------------------------------------------------
-        // 2. BACKGROUND SETTINGS POPUP & LIVE MODAL APPLIER
+        // 2. BACKGROUND SETTINGS & INTERACTIVE GLOW CUSTOMIZER
         // -----------------------------------------------------------------
+        window.syncSolidHex = function(hex) {
+            if(hex.startsWith('#') && hex.length === 7) {
+                document.getElementById('bg-solid-color').value = hex;
+            }
+        };
+
+        window.syncGlowBlur = function(val) {
+            document.getElementById('bg-glow-blur-val').innerText = val + "px";
+        };
+
+        window.syncGlowSpread = function(val) {
+            document.getElementById('bg-glow-spread-val').innerText = val + "px";
+        };
+
+        window.toggleGlowInputs = function() {
+            const isGlowOn = document.getElementById('bg-glow-toggle').checked;
+            const glowControls = document.getElementById('bg-glow-controls');
+            if(isGlowOn) {
+                glowControls.classList.remove('hidden');
+            } else {
+                glowControls.classList.add('hidden');
+            }
+        };
+
         window.openBgSettings = function(sectionId) {
             document.getElementById('target-section-id').value = sectionId;
             document.getElementById('bg-file-status').innerText = "";
             const targetEl = document.getElementById(sectionId);
             const modalBg = document.getElementById('modal-bg-settings');
             
-            const hasStyleBg = targetEl.style.backgroundImage;
-            const currentClasses = targetEl.className;
-            
-            if (hasStyleBg) {
+            // Baca inline styles sedia ada
+            const inlineBg = targetEl.style.backgroundImage || "";
+            const inlineBoxShadow = targetEl.style.boxShadow || "";
+            const inlineBgColor = targetEl.style.background || "";
+
+            // Reset Default Inputs
+            document.getElementById('bg-type-selector').value = "none";
+            document.getElementById('bg-glow-toggle').checked = false;
+            document.getElementById('bg-glow-controls').classList.add('hidden');
+
+            // Detect Existing Background Type
+            if (inlineBg.includes('url(')) {
                 document.getElementById('bg-type-selector').value = "image";
-                const urlMatch = hasStyleBg.match(/url\(['"]?([^'"]+)['"]?\)/);
+                const urlMatch = inlineBg.match(/url\(['"]?([^'"]+)['"]?\)/);
                 if (urlMatch) document.getElementById('bg-image-url-input').value = urlMatch[1];
                 
-                const opacityMatch = hasStyleBg.match(/rgba\(15,\s*23,\s*42,\s*([0-9.]+)\)/) || hasStyleBg.match(/rgba\(0,\s*0,\s*0,\s*([0-9.]+)\)/);
+                const opacityMatch = inlineBg.match(/rgba\(15,\s*23,\s*42,\s*([0-9.]+)\)/);
                 if (opacityMatch) {
                     document.getElementById('bg-image-opacity-input').value = opacityMatch[1];
-                } else {
-                    document.getElementById('bg-image-opacity-input').value = "0.5";
                 }
-            } else {
-                const bgClasses = currentClasses.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('via-') || c.startsWith('to-'));
-                if (bgClasses.length > 0 && !currentClasses.includes('bg-cover')) {
-                    document.getElementById('bg-type-selector').value = "color";
-                    document.getElementById('bg-classes-input').value = bgClasses.join(' ');
+            } else if (inlineBg.includes('gradient')) {
+                document.getElementById('bg-type-selector').value = "gradient";
+                // Cubaan ekstrak warna gradient asas
+                const colors = inlineBg.match(/#[0-9a-fA-F]{6}/g);
+                if (colors && colors.length >= 2) {
+                    document.getElementById('bg-grad-color1').value = colors[0];
+                    document.getElementById('bg-grad-color2').value = colors[1];
+                }
+            } else if (targetEl.style.backgroundColor) {
+                document.getElementById('bg-type-selector').value = "solid";
+                const hexColor = rgbToHex(targetEl.style.backgroundColor);
+                document.getElementById('bg-solid-color').value = hexColor;
+                document.getElementById('bg-solid-hex').value = hexColor;
+            }
+
+            // Detect Existing Glow
+            if (inlineBoxShadow && inlineBoxShadow !== "none") {
+                document.getElementById('bg-glow-toggle').checked = true;
+                document.getElementById('bg-glow-controls').classList.remove('hidden');
+                
+                if (inlineBoxShadow.includes('inset')) {
+                    document.getElementById('bg-glow-type').value = "inset";
                 } else {
-                    document.getElementById('bg-type-selector').value = "none";
+                    document.getElementById('bg-glow-type').value = "outer";
+                }
+
+                const shadowColors = inlineBoxShadow.match(/#[0-9a-fA-F]{6}/) || inlineBoxShadow.match(/rgba?\([^)]+\)/);
+                if(shadowColors) {
+                    document.getElementById('bg-glow-color').value = shadowColors[0].startsWith('rgb') ? rgbToHex(shadowColors[0]) : shadowColors[0];
+                }
+
+                // Ambil saiz blur & spread
+                const parts = inlineBoxShadow.split('px');
+                if(parts.length >= 3) {
+                    const blurVal = parseInt(parts[1].trim());
+                    const spreadVal = parseInt(parts[2].trim());
+                    document.getElementById('bg-glow-blur').value = blurVal;
+                    document.getElementById('bg-glow-blur-val').innerText = blurVal + "px";
+                    document.getElementById('bg-glow-spread').value = spreadVal;
+                    document.getElementById('bg-glow-spread-val').innerText = spreadVal + "px";
                 }
             }
             
@@ -765,14 +900,13 @@
 
         window.toggleBgInputs = function() {
             const type = document.getElementById('bg-type-selector').value;
-            const colorField = document.getElementById('bg-color-field');
-            const imageField = document.getElementById('bg-image-field');
+            document.getElementById('bg-solid-field').classList.add('hidden');
+            document.getElementById('bg-gradient-field').classList.add('hidden');
+            document.getElementById('bg-image-field').classList.add('hidden');
             
-            colorField.classList.add('hidden');
-            imageField.classList.add('hidden');
-            
-            if (type === "color") colorField.classList.remove('hidden');
-            if (type === "image") imageField.classList.remove('hidden');
+            if (type === "solid") document.getElementById('bg-solid-field').classList.remove('hidden');
+            if (type === "gradient") document.getElementById('bg-gradient-field').classList.remove('hidden');
+            if (type === "image") document.getElementById('bg-image-field').classList.remove('hidden');
         };
 
         window.applyBgSettings = function() {
@@ -780,19 +914,25 @@
             const type = document.getElementById('bg-type-selector').value;
             const targetEl = document.getElementById(sectionId);
             
+            // Bersihkan gaya latar asal
+            targetEl.style.backgroundColor = "";
             targetEl.style.backgroundImage = "";
-            targetEl.style.backgroundSize = "";
-            targetEl.style.backgroundPosition = "";
+            targetEl.style.background = "";
+            targetEl.style.boxShadow = "";
             
-            let classes = targetEl.className.split(' ').filter(c => {
-                return !c.startsWith('bg-') && !c.startsWith('from-') && !c.startsWith('via-') && !c.startsWith('to-');
-            });
-            
-            if (type === "none") {
-                targetEl.className = classes.join(' ');
-            } else if (type === "color") {
-                const customClasses = document.getElementById('bg-classes-input').value.trim();
-                targetEl.className = `${classes.join(' ')} ${customClasses}`;
+            // 1. Terapkan Background Pilihan
+            if (type === "solid") {
+                const colorVal = document.getElementById('bg-solid-color').value;
+                targetEl.style.backgroundColor = colorVal;
+            } else if (type === "gradient") {
+                const c1 = document.getElementById('bg-grad-color1').value;
+                const c2 = document.getElementById('bg-grad-color2').value;
+                const dir = document.getElementById('bg-grad-dir').value;
+                if(dir === "circle") {
+                    targetEl.style.backgroundImage = `radial-gradient(circle, ${c1}, ${c2})`;
+                } else {
+                    targetEl.style.backgroundImage = `linear-gradient(${dir}, ${c1}, ${c2})`;
+                }
             } else if (type === "image") {
                 const imgUrl = document.getElementById('bg-image-url-input').value.trim();
                 const opacity = document.getElementById('bg-image-opacity-input').value;
@@ -800,14 +940,25 @@
                     targetEl.style.backgroundImage = `linear-gradient(rgba(15, 23, 42, ${opacity}), rgba(15, 23, 42, ${opacity})), url('${imgUrl}')`;
                     targetEl.style.backgroundSize = "cover";
                     targetEl.style.backgroundPosition = "center";
-                    targetEl.className = `${classes.join(' ')} bg-cover bg-center text-white`;
-
+                    
                     // Jika ada imej upload di-queue, masukkan ke senarai batch upload utama
                     if (memoryStore.uploaded_backgrounds[sectionId] && memoryStore.uploaded_backgrounds[sectionId].path === imgUrl) {
                         memoryStore.pending_uploads.push(memoryStore.uploaded_backgrounds[sectionId]);
                         delete memoryStore.uploaded_backgrounds[sectionId];
                     }
                 }
+            }
+
+            // 2. Terapkan Kesan Glow
+            const isGlowOn = document.getElementById('bg-glow-toggle').checked;
+            if (isGlowOn) {
+                const glowColor = document.getElementById('bg-glow-color').value;
+                const glowType = document.getElementById('bg-glow-type').value;
+                const glowBlur = document.getElementById('bg-glow-blur').value;
+                const glowSpread = document.getElementById('bg-glow-spread').value;
+                const insetPart = (glowType === "inset") ? "inset " : "";
+                
+                targetEl.style.boxShadow = `${insetPart}0 0 ${glowBlur}px ${glowSpread}px ${glowColor}`;
             }
             
             closeBgSettings();
@@ -823,7 +974,7 @@
             
             const newCardHtml = `
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-purple-100 relative group card-item animate-pulse">
-                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100 lg:opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mb-6 text-xl"><i class="fas ${chosenIcon}"></i></div>
                     <h3 contenteditable="true" class="font-bold text-xl mb-3">Tajuk Aktiviti NILAM</h3>
                     <p contenteditable="true" class="text-slate-600 text-sm leading-relaxed">Tuliskan keterangan mengenai program atau kaedah amalan NILAM baru di sini.</p>
@@ -839,7 +990,7 @@
             const tvpssContainer = document.getElementById('tvpss-container');
             const newTvpssHtml = `
                 <div class="bg-white p-4 rounded-3xl shadow-md border border-purple-100 relative group card-item animate-pulse">
-                    <button class="admin-only admin-delete-btn absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100 lg:opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <button class="admin-only admin-delete-btn absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner relative flex items-center justify-center">
                         <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="TvPSS Video Player" frameborder="0" allowfullscreen></iframe>
                     </div>
@@ -883,7 +1034,7 @@
             const programContainer = document.getElementById('program-list-container');
             const newProgramHtml = `
                 <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative group card-item animate-pulse">
-                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100 lg:opacity-0" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    <button class="admin-only admin-delete-btn absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md z-10 opacity-100" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     <div>
                         <span contenteditable="true" class="text-xs font-bold text-purple-300 uppercase tracking-widest block mb-1">Bulan 2026</span>
                         <h3 contenteditable="true" class="font-bold text-lg text-white">Nama Program Baru PSS</h3>
@@ -901,24 +1052,6 @@
         // -----------------------------------------------------------------
         // 4. LOAD & SYNCHRONIZE DATA DYNAMIC SEDIA ADA (RAK BUKU & PENGAWAS)
         // -----------------------------------------------------------------
-        function parseFrontmatter(text) {
-            const obj = { body: "" };
-            const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
-            if (match) {
-                const lines = match[1].split('\n');
-                lines.forEach(line => {
-                    const parts = line.split(':');
-                    if (parts.length >= 2) {
-                        const key = parts[0].trim();
-                        const value = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
-                        obj[key] = value;
-                    }
-                });
-                obj.body = match[2].trim();
-            }
-            return obj;
-        }
-
         async function initFetchData(folderPath, storageKey, renderFn, containerId) {
             const container = document.getElementById(containerId);
             try {
@@ -985,12 +1118,16 @@
 
         function refreshContainers() {
             const rContainer = document.getElementById('rak-buku-container');
-            rContainer.innerHTML = '';
-            memoryStore.rak_buku.forEach((d, i) => renderBuku(d, rContainer, i));
+            if(rContainer) {
+                rContainer.innerHTML = '';
+                memoryStore.rak_buku.forEach((d, i) => renderBuku(d, rContainer, i));
+            }
 
             const pContainer = document.getElementById('pengawas-container');
-            pContainer.innerHTML = '';
-            memoryStore.pengawas.forEach((d, i) => renderPengawas(d, pContainer, i));
+            if(pContainer) {
+                pContainer.innerHTML = '';
+                memoryStore.pengawas.forEach((d, i) => renderPengawas(d, pContainer, i));
+            }
         }
 
         // TAMBAH DATA CMS (MODAL LOGIC + UPLOAD INPUT)
@@ -1055,7 +1192,6 @@
             const newItem = {};
             formData.forEach((val, key) => newItem[key] = val);
             
-            // Queue imej jika imej form dikesan telah diupload
             if (window.lastUploadedFormImage && newItem[currentType === 'rak_buku' ? 'cover' : 'gambar'] === window.lastUploadedFormImage.path) {
                 memoryStore.pending_uploads.push(window.lastUploadedFormImage);
             }
@@ -1088,7 +1224,6 @@
                 const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
 
                 // --- PEMBERSIHAN KOD DARI ELEMEN ADMIN (SANGAT PENTING!) ---
-                
                 const adminBar = doc.getElementById('admin-bar');
                 if (adminBar) adminBar.remove();
 
@@ -1143,7 +1278,7 @@
                     await pushToGitHub(`data/pengawas/${item._filename}`, mdContent, item._sha || null, `Kemas kini Pengawas: ${item.title}`);
                 }
 
-                alert("🎉 Alhamdulillah Nana! Kesemua fail gambar, pengubahsuaian reka bentuk font, saiz, warna, serta data baharu telah berjaya diterbitkan secara serentak ke dalam GitHub!");
+                alert("🎉 Alhamdulillah Nana! Kesemua fail gambar, pengubahsuaian reka bentuk font, saiz, warna, serta data latar belakang dan glow telah berjaya diterbitkan secara serentak ke dalam GitHub!");
                 window.location.reload();
 
             } catch (err) {
@@ -1158,8 +1293,6 @@
         // Helper GitHub PUT Push (Sokong data teks UTF-8 & data binari Base64)
         async function pushToGitHub(path, content, sha = null, commitMsg = "Kemasukan data Visual Web Builder", isBinary = false) {
             const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-            
-            // Format content bergantung kepada jenis data
             const finalContent = isBinary ? content : btoa(unescape(encodeURIComponent(content)));
             
             const bodyData = {
@@ -1177,6 +1310,24 @@
                 body: JSON.stringify(bodyData)
             });
             return res.json();
+        }
+
+        function parseFrontmatter(text) {
+            const obj = { body: "" };
+            const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
+            if (match) {
+                const lines = match[1].split('\n');
+                lines.forEach(line => {
+                    const parts = line.split(':');
+                    if (parts.length >= 2) {
+                        const key = parts[0].trim();
+                        const value = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
+                        obj[key] = value;
+                    }
+                });
+                obj.body = match[2].trim();
+            }
+            return obj;
         }
 
         // Jalankan fetch sync pada permulaan halaman
@@ -1208,3 +1359,6 @@
     </script>
 </body>
 </html>
+* **Slider Warna Solid & Gradient Builder:** Tukar latar belakang seksyen dengan gabungan kecerunan warna (gradient) mengikut arah kegemaran anda secara visual.
+* **Section Glow Effect (Inner & Outer):** Slaid bar kesan bercahaya (glow) untuk menambah aura estetik premium bertaraf dunia kepada mana-mana seksyen web!
+* **Penyimpanan Batch Tunggal:** Tukar semuanya secara gembira, dan hantar semuanya ke GitHub dengan hanya satu butang klik sahaja!
