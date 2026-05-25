@@ -648,31 +648,72 @@ for(let item of memoryStore.program) {
     return resData.content.sha; // Pulangkan SHA terkini dari GitHub
 }
 
-        document.addEventListener("DOMContentLoaded", () => {
-// Letak dalam fungsi document.addEventListener("DOMContentLoaded", () => { ... })
-['hero', 'nilam', 'rak-maya', 'tvpss', 'pengurusan', 'pengawas', 'program'].forEach(id => {
-    const saved = localStorage.getItem('bg_adv_' + id);
-    if(saved){
-        const bg = JSON.parse(saved);
-        const el = document.getElementById(id);
-        if(el) {
-            el.style.cssText = bg.styleCss;
-            el.style.opacity = bg.intensity / 100;
-            if(bg.glow) {
-                el.classList.add('glow-active');
-                el.style.boxShadow = "inset 0 0 50px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)";
+// DAH DIKEMAS KINI: AUTO-UPDATE KANDUNGAN ADMIN DARI INDEX.HTML GITHUB SEBAIK SAHAJA REFRESH
+        document.addEventListener("DOMContentLoaded", async () => {
+            // == LANGKAH A: TARIK DATA INDEX.HTML TERBARU DARI GITHUB ==
+            try {
+                const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html?t=${Date.now()}`;
+                const getIndexRes = await fetch(indexUrl, {
+                    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
+                });
+                
+                if (getIndexRes.ok) {
+                    const indexData = await getIndexRes.json();
+                    let publicHtmlRaw = decodeURIComponent(escape(atob(indexData.content)));
+                    
+                    // Bina virtual DOM untuk baca fail index.html terbaru dari GitHub
+                    const parser = new DOMParser();
+                    const publicDoc = parser.parseFromString(publicHtmlRaw, 'text/html');
+
+                    // Kemas kini teks & gaya inline elemen admin secara automatik mengikut index.html GitHub
+                    const textElementsToSync = [
+                        'txt-nav-title', 'txt-hero-tag', 'txt-hero-title', 'txt-hero-desc',
+                        'txt-nilam-title', 'txt-nilam-desc', 'txt-rak-title', 'txt-rak-desc',
+                        'txt-tvpss-title', 'txt-tvpss-desc', 'txt-mgr-title', 'txt-mgr-desc',
+                        'txt-visi', 'txt-misi', 'txt-carta-title', 'lbl-p1', 'txt-p1', 
+                        'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title',
+                        'txt-pengawas-desc', 'txt-program-desc', 'txt-program-title'
+                    ];
+
+                    textElementsToSync.forEach(id => {
+                        const adminEl = document.getElementById(id);
+                        const publicEl = publicDoc.getElementById(id);
+                        if (adminEl && publicEl) {
+                            adminEl.innerHTML = publicEl.innerHTML;
+                            adminEl.style.cssText = publicEl.style.cssText;
+                        }
+                    });
+
+                    // Kemas kini latar belakang seksyen admin mengikut index.html GitHub
+                    ['hero','nilam','rak-maya','tvpss','pengurusan','pengawas','program'].forEach(sectionId => {
+                        const adminEl = document.getElementById(sectionId);
+                        const publicEl = publicDoc.getElementById(sectionId);
+                        if(adminEl && publicEl) {
+                            adminEl.style.cssText = publicEl.style.cssText;
+                            if(publicEl.classList.contains('glow-active')) {
+                                adminEl.classList.add('glow-active');
+                            } else {
+                                adminEl.classList.remove('glow-active');
+                            }
+                        }
+                    });
+
+                    // Kemas kini logo sekolah mengikut index.html GitHub
+                    const adminLogo = document.getElementById('img-school-logo');
+                    const publicLogo = publicDoc.getElementById('img-school-logo');
+                    if (adminLogo && publicLogo) { adminLogo.src = publicLogo.src; }
+                }
+            } catch (err) {
+                console.error("Gagal menyinkronasikan data permulaan admin dari GitHub:", err);
             }
-        }
-    }
-});
 
-    ambilDataPelayanCms('data/nilam', 'nilam', rNilam, 'nilam-grid');
-    ambilDataPelayanCms('data/rak_buku', 'rak_buku', rBuku, 'rak-buku-container');
-    ambilDataPelayanCms('data/tvpss', 'tvpss', rTvpss, 'tvpss-container');
-    ambilDataPelayanCms('data/pengawas', 'pengawas', rPengawas, 'pengawas-container');
-    ambilDataPelayanCms('data/program', 'program', rProgram, 'program-list-container');
-
-});
+            // == LANGKAH B: TARIK DATA KAD DYNAMIC SEPERTI BIASA ==
+            ambilDataPelayanCms('data/nilam', 'nilam', rNilam, 'nilam-grid');
+            ambilDataPelayanCms('data/rak_buku', 'rak_buku', rBuku, 'rak-buku-container');
+            ambilDataPelayanCms('data/tvpss', 'tvpss', rTvpss, 'tvpss-container');
+            ambilDataPelayanCms('data/pengawas', 'pengawas', rPengawas, 'pengawas-container');
+            ambilDataPelayanCms('data/program', 'program', rProgram, 'program-list-container');
+        });
 
         document.getElementById('style-bold').addEventListener('click', () => {
     document.execCommand('bold');
