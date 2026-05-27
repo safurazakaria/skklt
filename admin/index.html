@@ -316,9 +316,15 @@ const repoOwner = "safurazakaria";
         }
 
         // 2. Jika tiada token langsung dalam simpanan, bawa Nana ke skrin login Vercel secara automatik
+        // =================================================================
         if (!githubToken) {
-            if (confirm("Sesi tamat atau anda belum log masuk. Klik OK untuk Log Masuk menggunakan GitHub via Vercel OAuth (Tanpa PAT).")) {
-                window.location.href = `https://pss-skylert-login.vercel.app/auth?repo=${repoOwner}/${repoName}`;
+            // Kita pastikan tiada sebarang hash state yang pelik mengacau URL
+            const urlAuth = `https://pss-skylert-login.vercel.app/auth?repo=${repoOwner}/${repoName}`;
+            
+            if (confirm("Sesi tamat atau anda belum log masuk. Klik OK untuk Log Masuk menggunakan GitHub via Vercel OAuth.")) {
+                // Padam sisa hash lama dalam browser sebelum lompat ke Vercel
+                window.location.hash = "";
+                window.location.href = urlAuth;
             }
         }
 
