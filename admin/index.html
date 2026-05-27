@@ -380,7 +380,59 @@ const repoOwner = "safurazakaria";
         function rPengawas(d, c, i) { c.insertAdjacentHTML('beforeend', `<div class="bg-white p-4 border rounded-xl relative card-item"><button onclick="padamItemSesi('pengawas', ${i})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"><i class="fas fa-trash"></i></button><h4 class="font-bold text-xs">${d.title}</h4></div>`); }
         function rProgram(d, c, i) { c.insertAdjacentHTML('beforeend', `<div class="bg-white p-4 border rounded-xl text-slate-900 relative card-item"><button onclick="padamItemSesi('program', ${i})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"><i class="fas fa-trash"></i></button><h4 class="font-bold text-xs">${d.title}</h4></div>`); }
 
-        window.padamItemSesi = function(type, idx) { memoryStore[type].splice(idx, 1); buatUlangPaparan(); };
+        // =================================================================
+        // ENJIN PEMADAM FAIL AUTOMATIK DARIPADA REPOSITORI GITHUB
+        // =================================================================
+        window.padamItemSesi = async function(type, idx) {
+            const item = memoryStore[type][idx];
+            
+            // 1. Sahkan dahulu dengan Nana untuk elak tertekan sengaja
+            if (!confirm(`Adakah Nana pasti untuk memadam data "${item.title}" ini terus daripada server GitHub?`)) {
+                return;
+            }
+
+            // Tentukan folder path mengikut jenis koleksi
+            let folderMap = {
+                nilam: 'data/nilam',
+                rak_buku: 'data/rak_buku',
+                tvpss: 'data/tvpss',
+                pengawas: 'data/pengawas',
+                program: 'data/program'
+            };
+
+            const pathFail = `${folderMap[type]}/${item._filename}`;
+
+            try {
+                // 2. Hantar permintaan HTTP DELETE rasmi ke GitHub API menggunakan Access Token OAuth Nana
+                const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${pathFail}`;
+                const bodyData = {
+                    message: `Visual Builder: Padam data ${type} - ${item.title}`,
+                    sha: item._sha, // GitHub wajib minta SHA fail asal untuk proses pemadaman
+                    branch: "main"
+                };
+
+                const res = await fetch(url, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `token ${githubToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(bodyData)
+                });
+
+                if (!res.ok) throw new Error("Gagal menghantar isyarat pemadaman ke server.");
+
+                // 3. Jika berjaya dipadam di GitHub, baru kita buang dari skrin admin Nana
+                memoryStore[type].splice(idx, 1);
+                buatUlangPaparan();
+                
+                alert(`🎉 Berjaya! Fail ${item._filename} milik "${item.title}" telah dipadam sepenuhnya dari GitHub.`);
+
+            } catch (e) {
+                console.error(e);
+                alert("Alamak, ralat semasa memadam: " + e.message);
+            }
+        };
 
         function buatUlangPaparan() {
             document.getElementById('nilam-grid').innerHTML = ''; memoryStore.nilam.forEach((d, i) => rNilam(d, document.getElementById('nilam-grid'), i));
