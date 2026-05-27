@@ -299,34 +299,30 @@
 const repoOwner = "safurazakaria";
         const repoName = "skklt";
         
-        // =================================================================
-        // ENJIN OAUTH VERCEL (GANTI SISTEM PAT PROMPT MANUAL)
-        // =================================================================
-        let githubToken = localStorage.getItem('gh_token') || '';
+                let githubToken = localStorage.getItem('gh_token') || '';
 
-        // 1. Semak jika ada token baru dihantar balik dari Vercel OAuth di URL hash
+        // FIX AMAT PENTING: Tangkap token dan terus padam sisa hash state yang mengacau URL
         if (window.location.hash && window.location.hash.includes('token=')) {
             const tokenMatch = window.location.hash.match(/token=([^&]+)/);
             if (tokenMatch) {
                 githubToken = tokenMatch[1];
                 localStorage.setItem('gh_token', githubToken);
-                // Bersihkan URL hash supaya nampak kemas semula
+                
+                // Padam terus tanda #/ dan sisa parameter pelik dari bar URL atas
+                window.location.hash = ""; 
                 window.history.replaceState(null, null, window.location.pathname);
             }
         }
 
-        // 2. Jika tiada token langsung dalam simpanan, bawa Nana ke skrin login Vercel secara automatik
-        // =================================================================
+        // Jika betul-betul kosong, baru bawa pergi login dengan URL yang bersih
         if (!githubToken) {
-            // Kita pastikan tiada sebarang hash state yang pelik mengacau URL
-            const urlAuth = `https://pss-skylert-login.vercel.app/auth?repo=${repoOwner}/${repoName}`;
-            
-            if (confirm("Sesi tamat atau anda belum log masuk. Klik OK untuk Log Masuk menggunakan GitHub via Vercel OAuth.")) {
-                // Padam sisa hash lama dalam browser sebelum lompat ke Vercel
-                window.location.hash = "";
-                window.location.href = urlAuth;
+            if (confirm("Sesi tamat atau anda belum log masuk. Klik OK untuk Log Masuk menggunakan GitHub via Vercel OAuth (Tanpa PAT).")) {
+                // Pastikan tiada sisa hash lama mengacau pautan Vercel
+                window.location.hash = ""; 
+                window.location.href = `https://pss-skylert-login.vercel.app/auth?repo=${repoOwner}/${repoName}`;
             }
         }
+
 
         // =================================================================
         // KEKALKAN SEMUA FEATURES VISUAL BUILDER ASAL NANA
