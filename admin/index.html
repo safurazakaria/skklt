@@ -523,7 +523,32 @@ const repoOwner = "safurazakaria";
                 // Push Data Kad Dinamik (.md)
                 for(let item of memoryStore.nilam) { let md = `---\ntitle: "${item.title}"\nicon: "fa-star"\n---\n${item.body || ''}`; item._sha = await pushToGitHub(`data/nilam/${item._filename}`, md, item._sha); }
                 for(let item of memoryStore.rak_buku) { let md = `---\ntitle: "${item.title}"\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover}"\nlink: "${item.link}"\n---`; item._sha = await pushToGitHub(`data/rak_buku/${item._filename}`, md, item._sha); }
-                for(let item of memoryStore.tvpss) { let md = `---\ntitle: "${item.title}"\nembed_url: "${item.embed_url}"\ndesc: "${item.desc}"\n---`; item._sha = await pushToGitHub(`data/tvpss/${item._filename}`, md, item._sha); }
+                for(let item of memoryStore.tvpss) { 
+    // =================================================================
+    // ENJIN PENUKAR URL YOUTUBE AUTOMATIK KEPADA EMBED
+    // =================================================================
+    let urlAsal = item.embed_url || "";
+    let embedUrlBetul = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Default video jika kosong
+
+    if (urlAsal.includes("watch?v=")) {
+        // Kes 1: Link biasa laptop -> https://www.youtube.com/watch?v=ENBe9u_kUHE
+        const videoId = urlAsal.split("v=")[1].split("&")[0];
+        embedUrlBetul = `https://www.youtube.com/embed/${videoId}`;
+    } 
+    else if (urlAsal.includes("youtu.be/")) {
+        // Kes 2: Link share dari phone -> https://youtu.be/ENBe9u_kUHE?si=XXXX
+        const videoId = urlAsal.split("youtu.be/")[1].split("?")[0];
+        embedUrlBetul = `https://www.youtube.com/embed/${videoId}`;
+    } 
+    else if (urlAsal.includes("embed/")) {
+        // Kes 3: Kalau Nana memang dah letak link embed yang betul
+        embedUrlBetul = urlAsal;
+    }
+
+    // Masukkan embedUrlBetul yang dah siap ditapis ke dalam struktur fail .md
+    let md = `---\ntitle: "${item.title}"\nembed_url: "${embedUrlBetul}"\ndesc: "${item.desc}"\n---`; 
+    item._sha = await pushToGitHub(`data/tvpss/${item._filename}`, md, item._sha); 
+}
                 for(let item of memoryStore.pengawas) { let md = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar}"\n---`; item._sha = await pushToGitHub(`data/pengawas/${item._filename}`, md, item._sha); }
                 for(let item of memoryStore.program) { let md = `---\ntitle: "${item.title}"\ntimeline: "${item.timeline}"\nstatus: "${item.status}"\ndesc: "${item.desc}"\n---`; item._sha = await pushToGitHub(`data/program/${item._filename}`, md, item._sha); }
 
