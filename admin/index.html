@@ -296,59 +296,78 @@
 </div>
 
     <script>
-        const repoOwner = "safurazakaria";
+const repoOwner = "safurazakaria";
         const repoName = "skklt";
+        
+        // =================================================================
+        // ENJIN OAUTH VERCEL (GANTI SISTEM PAT PROMPT MANUAL)
+        // =================================================================
         let githubToken = localStorage.getItem('gh_token') || '';
-        if (!githubToken) { githubToken = prompt("Masukkan PAT GitHub anda:"); if (githubToken) localStorage.setItem('gh_token', githubToken); }
 
+        // 1. Semak jika ada token baru dihantar balik dari Vercel OAuth di URL hash
+        if (window.location.hash && window.location.hash.includes('token=')) {
+            const tokenMatch = window.location.hash.match(/token=([^&]+)/);
+            if (tokenMatch) {
+                githubToken = tokenMatch[1];
+                localStorage.setItem('gh_token', githubToken);
+                // Bersihkan URL hash supaya nampak kemas semula
+                window.history.replaceState(null, null, window.location.pathname);
+            }
+        }
+
+        // 2. Jika tiada token langsung dalam simpanan, bawa Nana ke skrin login Vercel secara automatik
+        if (!githubToken) {
+            if (confirm("Sesi tamat atau anda belum log masuk. Klik OK untuk Log Masuk menggunakan GitHub via Vercel OAuth (Tanpa PAT).")) {
+                window.location.href = `https://pss-skylert-login.vercel.app/auth?repo=${repoOwner}/${repoName}`;
+            }
+        }
+
+        // =================================================================
+        // KEKALKAN SEMUA FEATURES VISUAL BUILDER ASAL NANA
+        // =================================================================
         let memoryStore = { nilam: [], rak_buku: [], tvpss: [], pengawas: [], program: [] };
         let activeEditableElement = null;
 
         async function ambilDataPelayanCms(folderPath, storeKey, renderFn, containerId) {
-    const container = document.getElementById(containerId);
-    try {
-        // HEADERS AUTHORIZATION
-const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`, {
-    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
-});
-        if(!res.ok) return;
-        const files = await res.json();
-        container.innerHTML = '';
-        for(let file of files) {
-            if(file.name.endsWith('.md')) {
-const fRes = await fetch(`${file.download_url}?t=${Date.now()}`);
-                const txt = await fRes.text();
-                let parsed = parseFrontmatter(txt);
-                parsed._filename = file.name;
-                parsed._sha = file.sha;
-                memoryStore[storeKey].push(parsed);
-                renderFn(parsed, container, memoryStore[storeKey].length - 1);
-            }
+            const container = document.getElementById(containerId);
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folderPath}?t=${Date.now()}`, {
+                    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
+                });
+                if(!res.ok) return;
+                const files = await res.json();
+                container.innerHTML = '';
+                for(let file of files) {
+                    if(file.name.endsWith('.md')) {
+                        const fRes = await fetch(`${file.download_url}?t=${Date.now()}`);
+                        const txt = await fRes.text();
+                        let parsed = parseFrontmatter(txt);
+                        parsed._filename = file.name;
+                        parsed._sha = file.sha;
+                        memoryStore[storeKey].push(parsed);
+                        renderFn(parsed, container, memoryStore[storeKey].length - 1);
+                    }
+                }
+            } catch(e) { console.error(e); }
         }
-    } catch(e) { 
-            console.error(e); 
-        }
-}
 
         function parseFrontmatter(text) {
-    const obj = { body: "" };
-    const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
-    if (match) {
-        const lines = match[1].split('\n');
-        lines.forEach(line => {
-            const parts = line.split(':');
-            if (parts.length >= 2) {
-                const key = parts[0].trim();
-                const value = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
-                obj[key] = value;
+            const obj = { body: "" };
+            const match = text.match(/^---([\s\S]*?)---([\s\S]*)$/);
+            if (match) {
+                const lines = match[1].split('\n');
+                lines.forEach(line => {
+                    const parts = line.split(':');
+                    if (parts.length >= 2) {
+                        obj[parts[0].trim()] = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
+                    }
+                });
+                obj.body = match[2].trim();
             }
-        });
-        obj.body = match[2].trim(); // Membaca kandungan teks di luar frontmatter
-    }
-    return obj;
-}
+            return obj;
+        }
 
-        // RENDER METHOD DEFINITIONS FOR SESSION CONTAINER
+        // RENDER METHOD DEFINITIONS
         function rNilam(d, c, i) { c.insertAdjacentHTML('beforeend', `<div class="bg-white p-6 border rounded-xl relative card-item"><button onclick="padamItemSesi('nilam', ${i})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"><i class="fas fa-trash"></i></button><h4 class="font-bold">${d.title}</h4><p class="text-xs text-slate-500">${d.body}</p></div>`); }
         function rBuku(d, c, i) { c.insertAdjacentHTML('beforeend', `<div class="bg-white p-4 border rounded-xl relative card-item"><button onclick="padamItemSesi('rak_buku', ${i})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"><i class="fas fa-trash"></i></button><h4 class="font-bold text-xs">${d.title}</h4><p class="text-[10px] text-slate-400">${d.penulis}</p></div>`); }
         function rTvpss(d, c, i) { c.insertAdjacentHTML('beforeend', `<div class="bg-white p-4 border rounded-xl relative card-item"><button onclick="padamItemSesi('tvpss', ${i})" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full text-xs"><i class="fas fa-trash"></i></button><h4 class="font-bold text-xs">${d.title}</h4></div>`); }
@@ -365,49 +384,35 @@ const fRes = await fetch(`${file.download_url}?t=${Date.now()}`);
             document.getElementById('program-list-container').innerHTML = ''; memoryStore.program.forEach((d, i) => rProgram(d, document.getElementById('program-list-container'), i));
         }
 
-        // ADD NEW ELEMENT INLINE INTERACTION MODALS
+        // ADD NEW ELEMENT MODALS
         let currentType = "";
         const fFields = document.getElementById('form-fields');
         const modalF = document.getElementById('modal-form');
 
         document.getElementById('btn-add-nilam').addEventListener('click', () => { currentType = "nilam"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Aktiviti NILAM" class="w-full border p-2 rounded"><textarea name="body" placeholder="Keterangan..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
-        document.getElementById('btn-add-buku').addEventListener('click', () => { currentType = "rak_buku"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Buku" class="w-full border p-2 rounded"><input type="text" name="penulis" placeholder="Penulis" class="w-full border p-2 rounded"><select name="kategori" class="w-full border p-2 rounded"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select><input type="text"
-name="cover"
-placeholder="URL Cover"
-class="w-full border p-2 rounded">
-
-<input type="file"
-id="cover-upload"
-accept="image/*"
-class="w-full border p-2 rounded"><input type="text" name="link" placeholder="URL Read Link" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
+        document.getElementById('btn-add-buku').addEventListener('click', () => { currentType = "rak_buku"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Buku" class="w-full border p-2 rounded"><input type="text" name="penulis" placeholder="Penulis" class="w-full border p-2 rounded"><select name="kategori" class="w-full border p-2 rounded"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select><input type="text" name="cover" placeholder="URL Cover" class="w-full border p-2 rounded"><input type="file" id="cover-upload" accept="image/*" class="w-full border p-2 rounded"><input type="text" name="link" placeholder="URL Read Link" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
         document.getElementById('btn-add-tvpss').addEventListener('click', () => { currentType = "tvpss"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Siaran" class="w-full border p-2 rounded"><input type="text" name="embed_url" placeholder="Pautan Embed YouTube URL" class="w-full border p-2 rounded"><textarea name="desc" placeholder="Deskripsi..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
         document.getElementById('btn-add-pengawas').addEventListener('click', () => { currentType = "pengawas"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Pengawas" class="w-full border p-2 rounded"><input type="text" name="jawatan" placeholder="Jawatan" class="w-full border p-2 rounded" value="Pengawas PSS"><input type="text" name="gambar" placeholder="URL Foto Pengawas" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
         document.getElementById('btn-add-program').addEventListener('click', () => { currentType = "program"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Program" class="w-full border p-2 rounded"><input type="text" name="timeline" placeholder="Mac 2026 / Julai 2026" class="w-full border p-2 rounded"><select name="status" class="w-full border p-2 rounded"><option>Akan Datang</option><option>Selesai</option></select><textarea name="desc" placeholder="Deskripsi ringkas..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
         
         document.getElementById('btn-close-modal').addEventListener('click', () => modalF.classList.add('hidden'));
         document.getElementById('form-cms').addEventListener('submit', async (e) => { 
-    e.preventDefault(); 
-    const fd = new FormData(e.target); 
-    const item = {}; 
-    
-    fd.forEach((v, k) => item[k] = v); 
-    item._filename = `${Date.now()}-${Math.floor(Math.random()*100)}.md`; 
+            e.preventDefault(); 
+            const fd = new FormData(e.target); 
+            const item = {}; 
+            fd.forEach((v, k) => item[k] = v); 
+            item._filename = `${Date.now()}-${Math.floor(Math.random()*100)}.md`; 
 
-    const fileInput = document.getElementById('cover-upload');
-    if (fileInput && fileInput.files.length) {
-        try {
-            item.cover = await imageToBase64(fileInput.files[0]);
-        } catch (error) {
-            console.error("Gagal menukar imej ke Base64:", error);
-        } 
-    }
-
-    memoryStore[currentType].push(item); 
-    buatUlangPaparan(); 
-    modalF.classList.add('hidden'); 
-});
+            const fileInput = document.getElementById('cover-upload');
+            if (fileInput && fileInput.files.length) {
+                try { item.cover = await imageToBase64(fileInput.files[0]); } catch (error) { console.error(error); } 
+            }
+            memoryStore[currentType].push(item); 
+            buatUlangPaparan(); 
+            modalF.classList.add('hidden'); 
+        });
         
-        // TEXT EDITOR LAYOUT BINDINGS
+        // TEXT EDITOR CONTROLS
         document.addEventListener('click', (e) => { const ed = e.target.closest('[contenteditable="true"]'); if (ed) { activeEditableElement = ed; document.getElementById('text-style-bar').classList.remove('hidden'); } });
         window.toggleStylingBarManual = function() { document.getElementById('text-style-bar').classList.toggle('hidden'); };
         document.getElementById('style-font').addEventListener('change', () => { if(activeEditableElement) activeEditableElement.style.fontFamily = document.getElementById('style-font').value; });
@@ -416,298 +421,141 @@ class="w-full border p-2 rounded"><input type="text" name="link" placeholder="UR
 
         window.openLogoSettings = function() { document.getElementById('modal-logo').classList.remove('hidden'); };
         window.applyLogoSettings = function() { document.getElementById('img-school-logo').src = document.getElementById('logo-url-input').value; document.getElementById('modal-logo').classList.add('hidden'); };
-        // Memaparkan input borang mengikut jenis latar yang dipilih
-window.tukarPilihanInputBg = function() {
-    const type = document.getElementById('bg-type-selector').value;
-    document.getElementById('bg-solid-field').classList.toggle('hidden', type !== 'solid');
-    document.getElementById('bg-gradient-field').classList.toggle('hidden', type !== 'gradient');
-    document.getElementById('bg-url-field').classList.toggle('hidden', type !== 'url');
-    document.getElementById('bg-upload-field').classList.toggle('hidden', type !== 'upload');
-};
-
-// Membuka modal tetapan latar belakang
-window.openBgSettings = function(id) {
-    document.getElementById('target-section-id').value = id;
-    
-    // Ambil tetapan sedia ada jika ada dari localStorage sebagai rujukan default modal
-    const saved = localStorage.getItem('bg_adv_' + id);
-    if(saved) {
-        const bg = JSON.parse(saved);
-        document.getElementById('bg-type-selector').value = bg.type;
-        document.getElementById('bg-intensity-slider').value = bg.intensity || 100;
-        document.getElementById('bg-intensity-val').innerText = (bg.intensity || 100) + '%';
-        document.getElementById('bg-glow-toggle').checked = bg.glow || false;
         
-        if(bg.type === 'solid') document.getElementById('bg-solid-color').value = bg.color;
-        if(bg.type === 'url') document.getElementById('bg-image-url-input').value = bg.targetData;
-    }
-    
-    tukarPilihanInputBg();
-    document.getElementById('modal-bg-settings').classList.remove('hidden');
-};
+        window.tukarPilihanInputBg = function() {
+            const type = document.getElementById('bg-type-selector').value;
+            document.getElementById('bg-solid-field').classList.toggle('hidden', type !== 'solid');
+            document.getElementById('bg-gradient-field').classList.toggle('hidden', type !== 'gradient');
+            document.getElementById('bg-url-field').classList.toggle('hidden', type !== 'url');
+            document.getElementById('bg-upload-field').classList.toggle('hidden', type !== 'upload');
+        };
 
-// Fungsi memproses data imej, warna, gradient, keamatan & glow
-window.gunakanTetapanLatarAdvance = async function() {
-    const id = document.getElementById('target-section-id').value;
-    const sectionEl = document.getElementById(id);
-    if(!sectionEl) return;
+        window.openBgSettings = function(id) {
+            document.getElementById('target-section-id').value = id;
+            const saved = localStorage.getItem('bg_adv_' + id);
+            if(saved) {
+                const bg = JSON.parse(saved);
+                document.getElementById('bg-type-selector').value = bg.type;
+                document.getElementById('bg-intensity-slider').value = bg.intensity || 100;
+                document.getElementById('bg-intensity-val').innerText = (bg.intensity || 100) + '%';
+                document.getElementById('bg-glow-toggle').checked = bg.glow || false;
+                if(bg.type === 'solid') document.getElementById('bg-solid-color').value = bg.color;
+                if(bg.type === 'url') document.getElementById('bg-image-url-input').value = bg.targetData;
+            }
+            tukarPilihanInputBg();
+            document.getElementById('modal-bg-settings').classList.remove('hidden');
+        };
 
-    const type = document.getElementById('bg-type-selector').value;
-    const intensity = document.getElementById('bg-intensity-slider').value;
-    const glow = document.getElementById('bg-glow-toggle').checked;
-    
-    let targetData = "";
-    let styleCss = "";
+        window.gunakanTetapanLatarAdvance = async function() {
+            const id = document.getElementById('target-section-id').value;
+            const sectionEl = document.getElementById(id);
+            if(!sectionEl) return;
 
-    // 1. Tentukan Nilai Visual Latar Belakang
-    if(type === 'solid') {
-        targetData = document.getElementById('bg-solid-color').value;
-        styleCss = `background-color: ${targetData}; background-image: none;`;
-    } 
-    else if(type === 'gradient') {
-        const c1 = document.getElementById('bg-grad-1').value;
-        const c2 = document.getElementById('bg-grad-2').value;
-        const dir = document.getElementById('bg-grad-dir').value;
-        targetData = `${dir}, ${c1}, ${c2}`;
-        styleCss = `background-image: linear-gradient(${targetData});`;
-    } 
-    else if(type === 'url') {
-        targetData = document.getElementById('bg-image-url-input').value;
-        styleCss = `background-image: url('${targetData}'); background-size: cover; background-position: center;`;
-    } 
-    else if(type === 'upload') {
-        const uploadInput = document.getElementById('bg-image-upload');
-        if(uploadInput.files && uploadInput.files[0]) {
-            targetData = await imageToBase64(uploadInput.files[0]);
-            styleCss = `background-image: url('${targetData}'); background-size: cover; background-position: center;`;
-        } else {
-            alert("Sila pilih fail imej terlebih dahulu!");
-            return;
-        }
-    }
+            const type = document.getElementById('bg-type-selector').value;
+            const intensity = document.getElementById('bg-intensity-slider').value;
+            const glow = document.getElementById('bg-glow-toggle').checked;
+            let targetData = "", styleCss = "";
 
-    // 2. Laksanakan perubahan gaya ke atas elemen HTML (Live Preview)
-    sectionEl.style.cssText = styleCss;
-    
-    // Urus keamatan (intensity) menggunakan CSS opacity
-    sectionEl.style.opacity = intensity / 100;
-    
-    // Urus kesan neon glow menggunakan box shadow CSS
-    if(glow) {
-        sectionEl.classList.add('glow-active');
-        sectionEl.style.boxShadow = "inset 0 0 50px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)";
-    } else {
-        sectionEl.classList.remove('glow-active');
-        sectionEl.style.boxShadow = "none";
-    }
+            if(type === 'solid') { targetData = document.getElementById('bg-solid-color').value; styleCss = `background-color: ${targetData}; background-image: none;`; } 
+            else if(type === 'gradient') { const c1 = document.getElementById('bg-grad-1').value; const c2 = document.getElementById('bg-grad-2').value; const dir = document.getElementById('bg-grad-dir').value; targetData = `${dir}, ${c1}, ${c2}`; styleCss = `background-image: linear-gradient(${targetData});`; } 
+            else if(type === 'url') { targetData = document.getElementById('bg-image-url-input').value; styleCss = `background-image: url('${targetData}'); background-size: cover; background-position: center;`; } 
+            else if(type === 'upload') { const up = document.getElementById('bg-image-upload'); if(up.files && up.files[0]) { targetData = await imageToBase64(up.files[0]); styleCss = `background-image: url('${targetData}'); background-size: cover; background-position: center;`; } else { alert("Pilih fail imej!"); return; } }
 
-    // 3. Simpan konfigurasi penuh ke dalam LocalStorage
-    const bgConfig = { type, targetData, intensity, glow, styleCss };
-    localStorage.setItem('bg_adv_' + id, JSON.stringify(bgConfig));
+            sectionEl.style.cssText = styleCss;
+            sectionEl.style.opacity = intensity / 100;
+            if(glow) { sectionEl.classList.add('glow-active'); sectionEl.style.boxShadow = "inset 0 0 50px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)"; } 
+            else { sectionEl.classList.remove('glow-active'); sectionEl.style.boxShadow = "none"; }
 
-    document.getElementById('modal-bg-settings').classList.add('hidden');
-};
+            localStorage.setItem('bg_adv_' + id, JSON.stringify({ type, targetData, intensity, glow, styleCss }));
+            document.getElementById('modal-bg-settings').classList.add('hidden');
+        };
 
-        // BULK PUSH ENGINE SYSTEM (VERSI KEMAS KINI: SIMPAN TEKS & KAD .MD)
+        // BUTANG PUBLISH UTAMA (MENGGUNAKAN ACCESSTOKEN OAUTH)
         document.getElementById('btn-save-all').addEventListener('click', async () => {
             const btn = document.getElementById('btn-save-all');
-            btn.disabled = true; 
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Menyimpan Semua Perubahan...</span>`;
+            btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Publishing Perubahan...</span>`;
             
             try {
-                // 1. Ambil fail index.html (main) asal yang bersih dari GitHub
                 const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html?t=${Date.now()}`;
-const getIndexRes = await fetch(indexUrl, {
-    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
-});
-                if(!getIndexRes.ok) throw new Error("Gagal membaca fail index.html utama dari GitHub.");
+                const getIndexRes = await fetch(indexUrl, { headers: githubToken ? { "Authorization": `token ${githubToken}` } : {} });
+                if(!getIndexRes.ok) throw new Error("Gagal ambil fail index.html utama.");
                 let indexData = await getIndexRes.json();
                 
-                // Dekod kandungan asal index.html dari GitHub ke dalam bentuk teks string
                 let publicHtmlRaw = decodeURIComponent(escape(atob(indexData.content)));
-                
-                // Cipta virtual DOM parser untuk memanipulasi fail public html tersebut
                 const parser = new DOMParser();
                 const publicDoc = parser.parseFromString(publicHtmlRaw, 'text/html');
 
-                // 2. Pemindahan Teks: Ambil teks yang Nana dah edit di admin, masukkan ke dalam virtual DOM index.html utama
+                // Sinkronisasi Perkataan Statik
                 const textElementsToSync = [
                     'txt-nav-title', 'txt-hero-tag', 'txt-hero-title', 'txt-hero-desc',
                     'txt-nilam-title', 'txt-nilam-desc', 'txt-rak-title', 'txt-rak-desc',
                     'txt-tvpss-title', 'txt-tvpss-desc', 'txt-mgr-title', 'txt-mgr-desc',
-                    'txt-visi', 'txt-misi', 'txt-carta-title', 'lbl-p1', 'txt-p1', 
-                    'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title',
-                    'txt-pengawas-desc', 'txt-program-desc', 'txt-program-title'
+                    'txt-visi', 'txt-misi', 'txt-carta-title', 'lbl-p1', 'txt-p1', 'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title', 'txt-pengawas-desc', 'txt-program-desc', 'txt-program-title'
                 ];
 
                 textElementsToSync.forEach(id => {
                     const adminEl = document.getElementById(id);
                     const publicEl = publicDoc.getElementById(id);
-                    if (adminEl && publicEl) {
-                        // Salin text / innerHTML (termasuk hasil bold/italic jika ada)
-                        publicEl.innerHTML = adminEl.innerHTML;
-                        publicEl.style.cssText =
-    adminEl.style.cssText;
-                    }
+                    if (adminEl && publicEl) { publicEl.innerHTML = adminEl.innerHTML; publicEl.style.cssText = adminEl.style.cssText; }
                 });
 
-// SYNC BACKGROUND ADVANCED ENGINE (Mendukung Glow & Intensity)
-['hero','nilam','rak-maya','tvpss','pengurusan','pengawas','program'].forEach(sectionId => {
-    const adminEl = document.getElementById(sectionId);
-    const publicEl = publicDoc.getElementById(sectionId);
-    
-    if(adminEl && publicEl) {
-        // Salin semua baris css inline yang telah direka (termasuk opacity & shadow)
-        publicEl.style.cssText = adminEl.style.cssText;
-        
-        // Kekalkan class glow sekiranya diaktifkan
-        if(adminEl.classList.contains('glow-active')) {
-            publicEl.classList.add('glow-active');
-        } else {
-            publicEl.classList.remove('glow-active');
-        }
-    }
-});
+                // Sinkronisasi Latar Belakang Advance
+                ['hero','nilam','rak-maya','tvpss','pengurusan','pengawas','program'].forEach(sectionId => {
+                    const adminEl = document.getElementById(sectionId);
+                    const publicEl = publicDoc.getElementById(sectionId);
+                    if(adminEl && publicEl) { publicEl.style.cssText = adminEl.style.cssText; if(adminEl.classList.contains('glow-active')) publicEl.classList.add('glow-active'); else publicEl.classList.remove('glow-active'); }
+                });
 
-                // Salin juga URL logo sekolah jika ada perubahan
-                const adminLogo = document.getElementById('img-school-logo');
-                const publicLogo = publicDoc.getElementById('img-school-logo');
-                if (adminLogo && publicLogo) {
-                    publicLogo.src = adminLogo.src;
+                if (document.getElementById('img-school-logo') && publicDoc.getElementById('img-school-logo')) {
+                    publicDoc.getElementById('img-school-logo').src = document.getElementById('img-school-logo').src;
                 }
 
-                // Ambil string HTML yang telah dikemas kini teksnya
                 const updatedPublicHtmlString = publicDoc.documentElement.outerHTML;
-
-                // 3. PROSES PUSH (Hantar index.html yang dikemaskini & semua fail data .md)
-                
                 const shaIndexBaru = await pushToGitHub('index.html', updatedPublicHtmlString, indexData.sha);
-indexData.sha = shaIndexBaru;
+                indexData.sha = shaIndexBaru;
 
-                // === HANTAR DATA KAD DYNAMIC (.MD) BERSERTA KEMAS KINI SHA SENYAP ===
+                // Push Data Kad Dinamik (.md)
+                for(let item of memoryStore.nilam) { let md = `---\ntitle: "${item.title}"\nicon: "fa-star"\n---\n${item.body || ''}`; item._sha = await pushToGitHub(`data/nilam/${item._filename}`, md, item._sha); }
+                for(let item of memoryStore.rak_buku) { let md = `---\ntitle: "${item.title}"\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover}"\nlink: "${item.link}"\n---`; item._sha = await pushToGitHub(`data/rak_buku/${item._filename}`, md, item._sha); }
+                for(let item of memoryStore.tvpss) { let md = `---\ntitle: "${item.title}"\nembed_url: "${item.embed_url}"\ndesc: "${item.desc}"\n---`; item._sha = await pushToGitHub(`data/tvpss/${item._filename}`, md, item._sha); }
+                for(let item of memoryStore.pengawas) { let md = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar}"\n---`; item._sha = await pushToGitHub(`data/pengawas/${item._filename}`, md, item._sha); }
+                for(let item of memoryStore.program) { let md = `---\ntitle: "${item.title}"\ntimeline: "${item.timeline}"\nstatus: "${item.status}"\ndesc: "${item.desc}"\n---`; item._sha = await pushToGitHub(`data/program/${item._filename}`, md, item._sha); }
 
-for(let item of memoryStore.nilam) {
-    let md = `---\ntitle: "${item.title}"\nicon: "fa-star"\n---\n${item.body || ''}`;
-    // Simpan SHA baharu terus ke dalam item memori supaya boleh di-edit lagi tanpa refresh
-    item._sha = await pushToGitHub(`data/nilam/${item._filename}`, md, item._sha);
-}
-
-for(let item of memoryStore.rak_buku) {
-    let md = `---\ntitle: "${item.title}"\npenulis: "${item.penulis}"\nkategori: "${item.kategori}"\ncover: "${item.cover}"\nlink: "${item.link}"\n---`;
-    item._sha = await pushToGitHub(`data/rak_buku/${item._filename}`, md, item._sha);
-}
-
-for(let item of memoryStore.tvpss) {
-    let md = `---\ntitle: "${item.title}"\nembed_url: "${item.embed_url}"\ndesc: "${item.desc}"\n---`;
-    item._sha = await pushToGitHub(`data/tvpss/${item._filename}`, md, item._sha);
-}
-
-for(let item of memoryStore.pengawas) {
-    let md = `---\ntitle: "${item.title}"\njawatan: "${item.jawatan}"\ngambar: "${item.gambar}"\n---`;
-    item._sha = await pushToGitHub(`data/pengawas/${item._filename}`, md, item._sha);
-}
-
-for(let item of memoryStore.program) {
-    let md = `---\ntitle: "${item.title}"\ntimeline: "${item.timeline}"\nstatus: "${item.status}"\ndesc: "${item.desc}"\n---`;
-    item._sha = await pushToGitHub(`data/program/${item._filename}`, md, item._sha);
-}
-
-                alert("🎉 Semua pengubahan perkataan teks utama serta data kad baharu telah berjaya disimpan terus ke GitHub!");
-
-            } catch(e) { 
-                console.error(e);
-                alert("Ralat semasa melakukan publish: " + e.message); 
-            } finally { 
-                btn.disabled = false; 
-                btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>`; 
-            }
+                alert("🎉 Tahniah Nana! Semua pengubahan teks, reka bentuk, dan data kad berjaya disimpan melalui pengesahan Vercel!");
+            } catch(e) { console.error(e); alert("Ralat semasa melakukan publish: " + e.message); }
+            finally { btn.disabled = false; btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> <span>Publish Semua Perubahan</span>`; }
         });
 
         async function pushToGitHub(path, content, sha) {
-    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
-    const bodyData = {
-        message: `Kemas kini visual builder: ${path}`,
-        content: btoa(unescape(encodeURIComponent(content))),
-        branch: "main"
-    };
-    if (sha) bodyData.sha = sha;
+            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+            const bodyData = { message: `Kemas kini visual builder: ${path}`, content: btoa(unescape(encodeURIComponent(content))), branch: "main" };
+            if (sha) bodyData.sha = sha;
+            const res = await fetch(url, { method: "PUT", headers: { "Authorization": `token ${githubToken}`, "Content-Type": "application/json" }, body: JSON.stringify(bodyData) });
+            if (!res.ok) throw new Error(`Gagal push ${path}`);
+            const resData = await res.json();
+            return resData.content.sha;
+        }
 
-    const res = await fetch(url, {
-        method: "PUT",
-        headers: {
-            "Authorization": `token ${githubToken}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(bodyData)
-    });
-
-    if (!res.ok) throw new Error(`Gagal push ${path}`);
-    
-    // AMBIL DATA RESPONS BARU UNTUK UPDATE SHA
-    const resData = await res.json();
-    return resData.content.sha; // Pulangkan SHA terkini dari GitHub
-}
-
-// DAH DIKEMAS KINI: AUTO-UPDATE KANDUNGAN ADMIN DARI INDEX.HTML GITHUB SEBAIK SAHAJA REFRESH
+        // INITIAL ENGINE LOAD SYNC
         document.addEventListener("DOMContentLoaded", async () => {
-            // == LANGKAH A: TARIK DATA INDEX.HTML TERBARU DARI GITHUB ==
+            if (!githubToken) return; // Sekat panggilan jika belum ada token
             try {
                 const indexUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/index.html?t=${Date.now()}`;
-                const getIndexRes = await fetch(indexUrl, {
-                    headers: githubToken ? { "Authorization": `token ${githubToken}` } : {}
-                });
-                
+                const getIndexRes = await fetch(indexUrl, { headers: { "Authorization": `token ${githubToken}` } });
                 if (getIndexRes.ok) {
                     const indexData = await getIndexRes.json();
                     let publicHtmlRaw = decodeURIComponent(escape(atob(indexData.content)));
-                    
-                    // Bina virtual DOM untuk baca fail index.html terbaru dari GitHub
                     const parser = new DOMParser();
                     const publicDoc = parser.parseFromString(publicHtmlRaw, 'text/html');
 
-                    // Kemas kini teks & gaya inline elemen admin secara automatik mengikut index.html GitHub
-                    const textElementsToSync = [
-                        'txt-nav-title', 'txt-hero-tag', 'txt-hero-title', 'txt-hero-desc',
-                        'txt-nilam-title', 'txt-nilam-desc', 'txt-rak-title', 'txt-rak-desc',
-                        'txt-tvpss-title', 'txt-tvpss-desc', 'txt-mgr-title', 'txt-mgr-desc',
-                        'txt-visi', 'txt-misi', 'txt-carta-title', 'lbl-p1', 'txt-p1', 
-                        'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title',
-                        'txt-pengawas-desc', 'txt-program-desc', 'txt-program-title'
-                    ];
+                    const textElementsToSync = ['txt-nav-title', 'txt-hero-tag', 'txt-hero-title', 'txt-hero-desc', 'txt-nilam-title', 'txt-nilam-desc', 'txt-rak-title', 'txt-rak-desc', 'txt-tvpss-title', 'txt-tvpss-desc', 'txt-mgr-title', 'txt-mgr-desc', 'txt-visi', 'txt-misi', 'txt-carta-title', 'lbl-p1', 'txt-p1', 'lbl-p2', 'txt-p2', 'lbl-p3', 'txt-p3', 'txt-pengawas-title', 'txt-pengawas-desc', 'txt-program-desc', 'txt-program-title'];
+                    textElementsToSync.forEach(id => { const adminEl = document.getElementById(id); const publicEl = publicDoc.getElementById(id); if (adminEl && publicEl) { adminEl.innerHTML = publicEl.innerHTML; adminEl.style.cssText = publicEl.style.cssText; } });
 
-                    textElementsToSync.forEach(id => {
-                        const adminEl = document.getElementById(id);
-                        const publicEl = publicDoc.getElementById(id);
-                        if (adminEl && publicEl) {
-                            adminEl.innerHTML = publicEl.innerHTML;
-                            adminEl.style.cssText = publicEl.style.cssText;
-                        }
-                    });
-
-                    // Kemas kini latar belakang seksyen admin mengikut index.html GitHub
-                    ['hero','nilam','rak-maya','tvpss','pengurusan','pengawas','program'].forEach(sectionId => {
-                        const adminEl = document.getElementById(sectionId);
-                        const publicEl = publicDoc.getElementById(sectionId);
-                        if(adminEl && publicEl) {
-                            adminEl.style.cssText = publicEl.style.cssText;
-                            if(publicEl.classList.contains('glow-active')) {
-                                adminEl.classList.add('glow-active');
-                            } else {
-                                adminEl.classList.remove('glow-active');
-                            }
-                        }
-                    });
-
-                    // Kemas kini logo sekolah mengikut index.html GitHub
-                    const adminLogo = document.getElementById('img-school-logo');
-                    const publicLogo = publicDoc.getElementById('img-school-logo');
-                    if (adminLogo && publicLogo) { adminLogo.src = publicLogo.src; }
+                    ['hero','nilam','rak-maya','tvpss','pengurusan','pengawas','program'].forEach(sectionId => { const adminEl = document.getElementById(sectionId); const publicEl = publicDoc.getElementById(sectionId); if(adminEl && publicEl) { adminEl.style.cssText = publicEl.style.cssText; if(publicEl.classList.contains('glow-active')) adminEl.classList.add('glow-active'); else adminEl.classList.remove('glow-active'); } });
+                    if (document.getElementById('img-school-logo') && publicDoc.getElementById('img-school-logo')) { document.getElementById('img-school-logo').src = publicDoc.getElementById('img-school-logo').src; }
                 }
-            } catch (err) {
-                console.error("Gagal menyinkronasikan data permulaan admin dari GitHub:", err);
-            }
+            } catch (err) { console.error(err); }
 
-            // == LANGKAH B: TARIK DATA KAD DYNAMIC SEPERTI BIASA ==
             ambilDataPelayanCms('data/nilam', 'nilam', rNilam, 'nilam-grid');
             ambilDataPelayanCms('data/rak_buku', 'rak_buku', rBuku, 'rak-buku-container');
             ambilDataPelayanCms('data/tvpss', 'tvpss', rTvpss, 'tvpss-container');
@@ -715,33 +563,10 @@ for(let item of memoryStore.program) {
             ambilDataPelayanCms('data/program', 'program', rProgram, 'program-list-container');
         });
 
-        document.getElementById('style-bold').addEventListener('click', () => {
-    document.execCommand('bold');
-});
-
-document.getElementById('style-italic').addEventListener('click', () => {
-    document.execCommand('italic');
-});
-
-document.getElementById('style-underline').addEventListener('click', () => {
-    document.execCommand('underline');
-});
-
-        async function imageToBase64(file){
-
-    return new Promise((resolve)=>{
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.readAsDataURL(file);
-
-    });
-
-}
+        document.getElementById('style-bold').addEventListener('click', () => { document.execCommand('bold'); });
+        document.getElementById('style-italic').addEventListener('click', () => { document.execCommand('italic'); });
+        document.getElementById('style-underline').addEventListener('click', () => { document.execCommand('underline'); });
+        async function imageToBase64(file){ return new Promise((resolve)=>{ const reader = new FileReader(); reader.onload = () => { resolve(reader.result); }; reader.readAsDataURL(file); }); }
     </script>
 </body>
 </html>
