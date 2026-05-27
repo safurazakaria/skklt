@@ -218,10 +218,19 @@
         </div>
     </div>
 
+    <!-- MODAL TUKAR LOGO SEKOLAH (VERSI BARU) -->
     <div id="modal-logo" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <input type="text" id="logo-url-input" class="w-full border p-2 text-sm rounded-lg" placeholder="URL Gambar Logo">
-            <button onclick="applyLogoSettings()" class="w-full bg-purple-600 text-white font-bold p-3 rounded-xl">Gunakan</button>
+            <h3 class="font-bold text-sm text-purple-900 uppercase"><i class="fas fa-camera mr-1"></i> Tukar Logo Sekolah</h3>
+            <div class="space-y-2">
+                <input type="text" id="logo-url-input" class="w-full border p-2 text-xs rounded-xl" placeholder="Masukkan URL Gambar Logo (Pilihan 1)">
+                <div class="text-center text-[10px] text-slate-400 font-bold">- ATAU -</div>
+                <input type="file" id="logo-upload-input" accept="image/*" class="w-full border p-2 text-xs rounded-xl bg-slate-50 cursor-pointer">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="document.getElementById('modal-logo').classList.add('hidden')" class="w-1/2 bg-slate-100 text-slate-600 font-bold p-2.5 rounded-xl text-xs">Batal</button>
+                <button onclick="applyLogoSettings()" class="w-1/2 bg-purple-600 text-white font-bold p-2.5 rounded-xl text-xs shadow-lg shadow-purple-200">Gunakan</button>
+            </div>
         </div>
     </div>
 
@@ -456,27 +465,81 @@ const repoOwner = "safurazakaria";
         const modalF = document.getElementById('modal-form');
 
         document.getElementById('btn-add-nilam').addEventListener('click', () => { currentType = "nilam"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Aktiviti NILAM" class="w-full border p-2 rounded"><textarea name="body" placeholder="Keterangan..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
-        document.getElementById('btn-add-buku').addEventListener('click', () => { currentType = "rak_buku"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Buku" class="w-full border p-2 rounded"><input type="text" name="penulis" placeholder="Penulis" class="w-full border p-2 rounded"><select name="kategori" class="w-full border p-2 rounded"><option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option></select><input type="text" name="cover" placeholder="URL Cover" class="w-full border p-2 rounded"><input type="file" id="cover-upload" accept="image/*" class="w-full border p-2 rounded"><input type="text" name="link" placeholder="URL Read Link" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
+document.getElementById('btn-add-buku').addEventListener('click', () => { 
+    currentType = "rak_buku"; 
+    fFields.innerHTML = `
+        <input type="text" name="title" placeholder="Tajuk Buku" class="w-full border p-2 rounded-xl text-xs mb-2">
+        <input type="text" name="penulis" placeholder="Penulis" class="w-full border p-2 rounded-xl text-xs mb-2">
+        <select name="kategori" class="w-full border p-2 rounded-xl text-xs mb-2 bg-white">
+            <option>FIKSYEN</option><option>SAINS</option><option>SEJARAH</option><option>MOTIVASI</option>
+        </select>
+        <div class="border p-3 rounded-xl bg-slate-50 space-y-2">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase">Gambar Kulit Buku</label>
+            <input type="text" id="cover-url" name="cover" placeholder="Masukkan URL Gambar (Pilihan 1)" class="w-full border p-2 rounded-lg text-xs bg-white">
+            <div class="text-center text-[10px] text-slate-400 font-bold">- ATAU -</div>
+            <input type="file" id="cover-upload" accept="image/*" class="w-full border p-1.5 rounded-lg text-xs bg-white cursor-pointer">
+        </div>
+        <input type="text" name="link" placeholder="URL Read Link (Pautan E-Book)" class="w-full border p-2 rounded-xl text-xs mt-2">
+    `; 
+    modalF.classList.remove('hidden'); 
+});
         document.getElementById('btn-add-tvpss').addEventListener('click', () => { currentType = "tvpss"; fFields.innerHTML=`<input type="text" name="title" placeholder="Tajuk Siaran" class="w-full border p-2 rounded"><input type="text" name="embed_url" placeholder="Pautan Embed YouTube URL" class="w-full border p-2 rounded"><textarea name="desc" placeholder="Deskripsi..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
-        document.getElementById('btn-add-pengawas').addEventListener('click', () => { currentType = "pengawas"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Pengawas" class="w-full border p-2 rounded"><input type="text" name="jawatan" placeholder="Jawatan" class="w-full border p-2 rounded" value="Pengawas PSS"><input type="text" name="gambar" placeholder="URL Foto Pengawas" class="w-full border p-2 rounded">`; modalF.classList.remove('hidden'); });
+document.getElementById('btn-add-pengawas').addEventListener('click', () => { 
+    currentType = "pengawas"; 
+    fFields.innerHTML = `
+        <input type="text" name="title" placeholder="Nama Pengawas" class="w-full border p-2 rounded-xl text-xs mb-2">
+        <input type="text" name="jawatan" placeholder="Jawatan" class="w-full border p-2 rounded-xl text-xs mb-2" value="Pengawas PSS">
+        <div class="border p-3 rounded-xl bg-slate-50 space-y-2">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase">Gambar Pengawas</label>
+            <input type="text" id="gambar-url" name="gambar" placeholder="Masukkan URL Gambar (Pilihan 1)" class="w-full border p-2 rounded-lg text-xs bg-white">
+            <div class="text-center text-[10px] text-slate-400 font-bold">- ATAU -</div>
+            <input type="file" id="gambar-upload" accept="image/*" class="w-full border p-1.5 rounded-lg text-xs bg-white cursor-pointer">
+        </div>
+    `; 
+    modalF.classList.remove('hidden'); 
+});
         document.getElementById('btn-add-program').addEventListener('click', () => { currentType = "program"; fFields.innerHTML=`<input type="text" name="title" placeholder="Nama Program" class="w-full border p-2 rounded"><input type="text" name="timeline" placeholder="Mac 2026 / Julai 2026" class="w-full border p-2 rounded"><select name="status" class="w-full border p-2 rounded"><option>Akan Datang</option><option>Selesai</option></select><textarea name="desc" placeholder="Deskripsi ringkas..." class="w-full border p-2 rounded"></textarea>`; modalF.classList.remove('hidden'); });
         
         document.getElementById('btn-close-modal').addEventListener('click', () => modalF.classList.add('hidden'));
         document.getElementById('form-cms').addEventListener('submit', async (e) => { 
-            e.preventDefault(); 
-            const fd = new FormData(e.target); 
-            const item = {}; 
-            fd.forEach((v, k) => item[k] = v); 
-            item._filename = `${Date.now()}-${Math.floor(Math.random()*100)}.md`; 
+    e.preventDefault(); 
+    const btnSimpan = e.target.querySelector('button[type="submit"]');
+    btnSimpan.disabled = true;
+    btnSimpan.innerText = "Memproses Gambar...";
 
+    const fd = new FormData(e.target); 
+    const item = {}; 
+    fd.forEach((v, k) => item[k] = v); 
+    item._filename = `${Date.now()}-${Math.floor(Math.random()*100)}.md`; 
+
+    try {
+        // Proses Upload Imej Buku jika ada fail dipilih
+        if (currentType === "rak_buku") {
             const fileInput = document.getElementById('cover-upload');
-            if (fileInput && fileInput.files.length) {
-                try { item.cover = await imageToBase64(fileInput.files[0]); } catch (error) { console.error(error); } 
+            if (fileInput && fileInput.files.length > 0) {
+                item.cover = await imageToBase64(fileInput.files[0]);
             }
-            memoryStore[currentType].push(item); 
-            buatUlangPaparan(); 
-            modalF.classList.add('hidden'); 
-        });
+        }
+        
+        // Proses Upload Imej Pengawas jika ada fail dipilih
+        if (currentType === "pengawas") {
+            const fileInput = document.getElementById('gambar-upload');
+            if (fileInput && fileInput.files.length > 0) {
+                item.gambar = await imageToBase64(fileInput.files[0]);
+            }
+        }
+
+        memoryStore[currentType].push(item); 
+        buatUlangPaparan(); 
+        modalF.classList.add('hidden'); 
+    } catch (error) {
+        console.error(error);
+        alert("Alamak, ralat semasa memproses gambar fail.");
+    } finally {
+        btnSimpan.disabled = false;
+        btnSimpan.innerText = "Simpan Sesi";
+    }
+});
         
         // TEXT EDITOR CONTROLS
         document.addEventListener('click', (e) => { const ed = e.target.closest('[contenteditable="true"]'); if (ed) { activeEditableElement = ed; document.getElementById('text-style-bar').classList.remove('hidden'); } });
@@ -486,7 +549,26 @@ const repoOwner = "safurazakaria";
         document.getElementById('style-color').addEventListener('input', () => { if(activeEditableElement) activeEditableElement.style.color = document.getElementById('style-color').value; });
 
         window.openLogoSettings = function() { document.getElementById('modal-logo').classList.remove('hidden'); };
-        window.applyLogoSettings = function() { document.getElementById('img-school-logo').src = document.getElementById('logo-url-input').value; document.getElementById('modal-logo').classList.add('hidden'); };
+window.applyLogoSettings = async function() {
+    const urlInput = document.getElementById('logo-url-input').value;
+    const fileInput = document.getElementById('logo-upload-input');
+    const logoImg = document.getElementById('img-school-logo');
+    
+    if (fileInput && fileInput.files.length > 0) {
+        // Jika pilih fail, tukar jadi base64
+        try {
+            const base64Data = await imageToBase64(fileInput.files[0]);
+            logoImg.src = base64Data;
+        } catch(e) { console.error(e); }
+    } else if (urlInput.trim() !== "") {
+        // Jika guna URL
+        logoImg.src = urlInput;
+    } else {
+        alert("Sila masukkan URL gambar atau pilih fail terlebih dahulu!");
+        return;
+    }
+    document.getElementById('modal-logo').classList.add('hidden');
+};
         
         window.tukarPilihanInputBg = function() {
             const type = document.getElementById('bg-type-selector').value;
